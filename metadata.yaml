@@ -5,7 +5,7 @@ description: |
  Cinder is the block storage service for the Openstack project.
  .
  This subordinate charm configures the Cinder backup service.
-categories:
+tags:
   - miscellaneous
 subordinate: true
 provides:

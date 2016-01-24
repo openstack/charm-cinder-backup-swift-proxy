@@ -98,4 +98,4 @@ def set_ceph_env_variables(service):
         with open('/etc/environment', 'a') as out:
             out.write('CEPH_ARGS="--id %s"\n' % service)
     with open('/etc/init/cinder-backup.override', 'w') as out:
-            out.write('env CEPH_ARGS="--id %s"\n' % service)
+        out.write('env CEPH_ARGS="--id %s"\n' % service)
