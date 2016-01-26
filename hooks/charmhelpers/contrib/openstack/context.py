@@ -57,6 +57,7 @@ from charmhelpers.core.host import (
     get_nic_hwaddr,
     mkdir,
     write_file,
+    pwgen,
 )
 from charmhelpers.contrib.hahelpers.cluster import (
     determine_apache_port,
@@ -87,6 +88,8 @@ from charmhelpers.contrib.network.ip import (
     is_bridge_member,
 )
 from charmhelpers.contrib.openstack.utils import get_host_ip
+from charmhelpers.core.unitdata import kv
+
 CA_CERT_PATH = '/usr/local/share/ca-certificates/keystone_juju_ca_cert.crt'
 ADDRESS_TYPES = ['admin', 'internal', 'public']
 
@@ -626,15 +629,28 @@ class HAProxyContext(OSContextGenerator):
         if config('haproxy-client-timeout'):
             ctxt['haproxy_client_timeout'] = config('haproxy-client-timeout')
 
+        if config('haproxy-queue-timeout'):
+            ctxt['haproxy_queue_timeout'] = config('haproxy-queue-timeout')
+
+        if config('haproxy-connect-timeout'):
+            ctxt['haproxy_connect_timeout'] = config('haproxy-connect-timeout')
+
         if config('prefer-ipv6'):
             ctxt['ipv6'] = True
             ctxt['local_host'] = 'ip6-localhost'
             ctxt['haproxy_host'] = '::'
-            ctxt['stat_port'] = ':::8888'
         else:
             ctxt['local_host'] = '127.0.0.1'
             ctxt['haproxy_host'] = '0.0.0.0'
-            ctxt['stat_port'] = ':8888'
+
+        ctxt['stat_port'] = '8888'
+
+        db = kv()
+        ctxt['stat_password'] = db.get('stat-password')
+        if not ctxt['stat_password']:
+            ctxt['stat_password'] = db.set('stat-password',
+                                           pwgen(32))
+            db.flush()
 
         for frontend in cluster_hosts:
             if (len(cluster_hosts[frontend]['backends']) > 1 or
@@ -952,6 +968,19 @@ class NeutronContext(OSContextGenerator):
                     'config': config}
         return ovs_ctxt
 
+    def midonet_ctxt(self):
+        driver = neutron_plugin_attribute(self.plugin, 'driver',
+                                          self.network_manager)
+        midonet_config = neutron_plugin_attribute(self.plugin, 'config',
+                                                  self.network_manager)
+        mido_ctxt = {'core_plugin': driver,
+                     'neutron_plugin': 'midonet',
+                     'neutron_security_groups': self.neutron_security_groups,
+                     'local_ip': unit_private_ip(),
+                     'config': midonet_config}
+
+        return mido_ctxt
+
     def __call__(self):
         if self.network_manager not in ['quantum', 'neutron']:
             return {}
@@ -973,6 +1002,8 @@ class NeutronContext(OSContextGenerator):
             ctxt.update(self.nuage_ctxt())
         elif self.plugin == 'plumgrid':
             ctxt.update(self.pg_ctxt())
+        elif self.plugin == 'midonet':
+            ctxt.update(self.midonet_ctxt())
 
         alchemy_flags = config('neutron-alchemy-flags')
         if alchemy_flags:
@@ -1073,6 +1104,20 @@ class OSConfigFlagContext(OSContextGenerator):
                 config_flags_parser(config_flags)}
 
 
+class LibvirtConfigFlagsContext(OSContextGenerator):
+    """
+    This context provides support for extending
+    the libvirt section through user-defined flags.
+    """
+    def __call__(self):
+        ctxt = {}
+        libvirt_flags = config('libvirt-flags')
+        if libvirt_flags:
+            ctxt['libvirt_flags'] = config_flags_parser(
+                libvirt_flags)
+        return ctxt
+
+
 class SubordinateConfigContext(OSContextGenerator):
 
     """
@@ -1105,7 +1150,7 @@ class SubordinateConfigContext(OSContextGenerator):
 
         ctxt = {
             ... other context ...
-            'subordinate_config': {
+            'subordinate_configuration': {
                 'DEFAULT': {
                     'key1': 'value1',
                 },
@@ -1146,22 +1191,23 @@ class SubordinateConfigContext(OSContextGenerator):
                     try:
                         sub_config = json.loads(sub_config)
                     except:
-                        log('Could not parse JSON from subordinate_config '
-                            'setting from %s' % rid, level=ERROR)
+                        log('Could not parse JSON from '
+                            'subordinate_configuration setting from %s'
+                            % rid, level=ERROR)
                         continue
 
                     for service in self.services:
                         if service not in sub_config:
-                            log('Found subordinate_config on %s but it contained'
-                                'nothing for %s service' % (rid, service),
-                                level=INFO)
+                            log('Found subordinate_configuration on %s but it '
+                                'contained nothing for %s service'
+                                % (rid, service), level=INFO)
                             continue
 
                         sub_config = sub_config[service]
                         if self.config_file not in sub_config:
-                            log('Found subordinate_config on %s but it contained'
-                                'nothing for %s' % (rid, self.config_file),
-                                level=INFO)
+                            log('Found subordinate_configuration on %s but it '
+                                'contained nothing for %s'
+                                % (rid, self.config_file), level=INFO)
                             continue
 
                         sub_config = sub_config[self.config_file]

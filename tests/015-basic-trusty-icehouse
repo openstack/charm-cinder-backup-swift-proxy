@@ -1,0 +1,9 @@
+#!/usr/bin/python
+
+"""Amulet tests on a basic cinder-backup deployment on trusty-icehouse."""
+
+from basic_deployment import CinderBackupBasicDeployment
+
+if __name__ == '__main__':
+    deployment = CinderBackupBasicDeployment(series='trusty')
+    deployment.run_tests()
