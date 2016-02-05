@@ -78,7 +78,7 @@ def ceph_changed():
         CONFIGS.write_all()
         set_ceph_env_variables(service=service)
         for rid in relation_ids('backup-backend'):
-            backup_backend(rid)
+            backup_backend_joined(rid)
 
         # Ensure that cinder services are restarted since only now can we
         # guarantee that ceph resources are ready. Note that the order of
@@ -104,7 +104,7 @@ def write_and_restart():
 
 
 @hooks.hook('backup-backend-relation-joined')
-def backup_backend(rel_id=None):
+def backup_backend_joined(rel_id=None):
     if 'ceph' not in CONFIGS.complete_contexts():
         log('ceph relation incomplete. Peer not ready?')
     else:
@@ -115,13 +115,19 @@ def backup_backend(rel_id=None):
             subordinate_configuration=json.dumps(ctxt)
         )
 
+        # NOTE(hopem): This currently only applies when using the ceph driver.
+        #              In future, if/when support is added for other drivers,
+        #              this will need to be conditional on whether the
+        #              configured driver is stateless or not.
+        relation_set(relation_id=rel_id, stateless=True)
+
 
 @hooks.hook('backup-backend-relation-changed')
 def backup_backend_changed():
     # NOTE(jamespage) recall backup_backend as this only ever
     # changes post initial creation if the cinder charm is upgraded to a new
     # version of openstack.
-    backup_backend()
+    backup_backend_joined()
 
 
 @hooks.hook('upgrade-charm')
@@ -131,7 +137,7 @@ def upgrade_charm():
         CONFIGS.write_all()
         set_ceph_env_variables(service=service_name())
         for rid in relation_ids('backup-backend'):
-            backup_backend(rid)
+            backup_backend_joined(rid)
 
 
 if __name__ == '__main__':
