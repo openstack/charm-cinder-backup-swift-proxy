@@ -2,11 +2,11 @@
 PYTHON := /usr/bin/env python
 
 lint:
-	@flake8 --exclude hooks/charmhelpers hooks unit_tests
-	@charm proof
+	@tox -e pep8
 
 test:
-	@$(PYTHON) /usr/bin/nosetests --nologcapture --with-coverage unit_tests
+	@echo Starting unit tests...
+	@tox -e py27
 
 functional_test:
 	@echo Starting amulet deployment tests...

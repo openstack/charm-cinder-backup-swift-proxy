@@ -1,3 +1,6 @@
 bin
 .coverage
+.testrepository
+.tox
 *.sw[nop]
+*.py[oc]
