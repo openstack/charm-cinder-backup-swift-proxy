@@ -10,7 +10,7 @@ test:
 
 functional_test:
 	@echo Starting amulet deployment tests...
-	@juju test -v -p AMULET_HTTP_PROXY,AMULET_OS_VIP --timeout 2700
+	@tox -e func27
 
 bin/charm_helpers_sync.py:
 	@mkdir -p bin

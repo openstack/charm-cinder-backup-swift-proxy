@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 # Copyright 2016 Canonical Ltd
 #
@@ -14,10 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Amulet tests on a basic cinder-backup deployment on vivid-kilo."""
+"""Amulet tests on a basic cinder-backup deployment on xenial-mitaka."""
 
 from basic_deployment import CinderBackupBasicDeployment
 
 if __name__ == '__main__':
-    deployment = CinderBackupBasicDeployment(series='vivid')
+    deployment = CinderBackupBasicDeployment(series='xenial')
     deployment.run_tests()
