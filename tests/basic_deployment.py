@@ -50,9 +50,10 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
 
         # XXX: cinder-backup workload status ignored until it grows support
         #      https://bugs.launchpad.net/bugs/1604580
-        exclude_services = ['mysql', 'cinder-backup']
+        exclude_services = ['cinder-backup']
         self._auto_wait_for_status(exclude_services=exclude_services)
 
+        self.d.sentry.wait()
         self._initialize_tests()
 
     def _add_services(self):
@@ -63,12 +64,12 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
         # Note: cinder-backup becomes a cinder subordinate unit.
         this_service = {'name': 'cinder-backup'}
         other_services = [
-            {'name': 'mysql'},
+            {'name': 'percona-cluster', 'constraints': {'mem': '3072M'}},
             {'name': 'keystone'},
             {'name': 'rabbitmq-server'},
             {'name': 'ceph', 'units': 3},
             {'name': 'cinder'},
-            {'name': 'cinder-ceph'}
+            {'name': 'cinder-ceph'},
         ]
         super(CinderBackupBasicDeployment, self)._add_services(this_service,
                                                                other_services)
@@ -81,8 +82,8 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
             'cinder-ceph:ceph': 'ceph:client',
             'cinder:storage-backend': 'cinder-ceph:storage-backend',
             'cinder:backup-backend': 'cinder-backup:backup-backend',
-            'keystone:shared-db': 'mysql:shared-db',
-            'cinder:shared-db': 'mysql:shared-db',
+            'keystone:shared-db': 'percona-cluster:shared-db',
+            'cinder:shared-db': 'percona-cluster:shared-db',
             'cinder:identity-service': 'keystone:identity-service',
             'cinder:amqp': 'rabbitmq-server:amqp',
         }
@@ -94,8 +95,11 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
             'admin-password': 'openstack',
             'admin-token': 'ubuntutesting'
         }
-        mysql_config = {
-            'dataset-size': '50%'
+        pxc_config = {
+            'dataset-size': '25%',
+            'max-connections': 1000,
+            'root-password': 'ChangeMe123',
+            'sst-password': 'ChangeMe123',
         }
         cinder_config = {
             'block-device': 'None',
@@ -115,18 +119,18 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
         }
         configs = {
             'keystone': keystone_config,
-            'mysql': mysql_config,
+            'percona-cluster': pxc_config,
             'cinder': cinder_config,
             'ceph': ceph_config,
             'cinder-ceph': cinder_ceph_config,
-            'cinder-backup': cinder_ceph_config
+            'cinder-backup': cinder_ceph_config,
         }
         super(CinderBackupBasicDeployment, self)._configure_services(configs)
 
     def _initialize_tests(self):
         """Perform final initialization before tests get run."""
         # Access the sentries for inspecting service units
-        self.mysql_sentry = self.d.sentry['mysql'][0]
+        self.pxc_sentry = self.d.sentry['percona-cluster'][0]
         self.keystone_sentry = self.d.sentry['keystone'][0]
         self.rabbitmq_sentry = self.d.sentry['rabbitmq-server'][0]
         self.cinder_sentry = self.d.sentry['cinder'][0]
@@ -201,7 +205,6 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
     def test_102_services(self):
         """Verify the expected services are running on the service units."""
         services = {
-            self.mysql_sentry: ['mysql'],
             self.rabbitmq_sentry: ['rabbitmq-server'],
             self.keystone_sentry: ['keystone'],
             self.cinder_sentry: ['cinder-api',
@@ -423,7 +426,7 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
     def test_204_mysql_cinder_db_relation(self):
         """Verify the mysql:glance shared-db relation data"""
         u.log.debug('Checking mysql:cinder db relation data...')
-        unit = self.mysql_sentry
+        unit = self.pxc_sentry
         relation = ['shared-db', 'cinder:shared-db']
         expected = {
             'private-address': u.valid_ip,
@@ -438,7 +441,7 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
         """Verify the cinder:mysql shared-db relation data"""
         u.log.debug('Checking cinder:mysql db relation data...')
         unit = self.cinder_sentry
-        relation = ['shared-db', 'mysql:shared-db']
+        relation = ['shared-db', 'percona-cluster:shared-db']
         expected = {
             'private-address': u.valid_ip,
             'hostname': u.valid_ip,
