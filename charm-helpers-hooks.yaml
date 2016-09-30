@@ -3,6 +3,7 @@ destination: hooks/charmhelpers
 include:
     - core
     - fetch
+    - osplatform
     - contrib.openstack|inc=*
     - contrib.storage
     - contrib.hahelpers
