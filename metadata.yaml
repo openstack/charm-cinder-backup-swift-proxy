@@ -10,7 +10,6 @@ tags:
 series:
   - xenial
   - trusty
-  - precise
   - yakkety
 subordinate: true
 provides:

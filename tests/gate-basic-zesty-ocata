@@ -14,10 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Amulet tests on a basic Cinder backup deployment on yakkety-newton."""
+"""Amulet tests on a basic cinder-backup deployment on zesty-ocata."""
 
 from basic_deployment import CinderBackupBasicDeployment
 
 if __name__ == '__main__':
-    deployment = CinderBackupBasicDeployment(series='yakkety')
+    deployment = CinderBackupBasicDeployment(series='zesty')
     deployment.run_tests()
