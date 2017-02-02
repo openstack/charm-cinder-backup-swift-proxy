@@ -22,7 +22,9 @@ from cinder_backup_utils import (
     register_configs,
     restart_map,
     set_ceph_env_variables,
-    PACKAGES
+    PACKAGES,
+    REQUIRED_INTERFACES,
+    VERSION_PACKAGE,
 )
 from cinder_backup_contexts import (
     CephBackupSubordinateContext
@@ -40,6 +42,10 @@ from charmhelpers.fetch import apt_install, apt_update
 from charmhelpers.core.host import (
     restart_on_change,
     service_restart,
+)
+from charmhelpers.contrib.openstack.utils import (
+    set_os_workload_status,
+    os_application_version_set,
 )
 from charmhelpers.contrib.storage.linux.ceph import (
     delete_keyring,
@@ -160,3 +166,5 @@ if __name__ == '__main__':
         hooks.execute(sys.argv)
     except UnregisteredHookError as e:
         log('Unknown hook {} - skipping.'.format(e))
+    set_os_workload_status(CONFIGS, REQUIRED_INTERFACES)
+    os_application_version_set(VERSION_PACKAGE)

@@ -34,6 +34,10 @@ PACKAGES = [
     'ceph-common',
     'cinder-backup',
 ]
+REQUIRED_INTERFACES = {
+    'ceph': ['ceph'],
+}
+VERSION_PACKAGE = 'cinder-common'
 CHARM_CEPH_CONF = '/var/lib/charm/{}/ceph.conf'
 CEPH_CONF = '/etc/ceph/ceph.conf'
 TEMPLATES = 'templates/'
