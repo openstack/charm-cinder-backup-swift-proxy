@@ -59,6 +59,7 @@ from charmhelpers.core.host import (
     write_file,
     pwgen,
     lsb_release,
+    CompareHostReleases,
 )
 from charmhelpers.contrib.hahelpers.cluster import (
     determine_apache_port,
@@ -100,7 +101,10 @@ from charmhelpers.core.unitdata import kv
 try:
     import psutil
 except ImportError:
-    apt_install('python-psutil', fatal=True)
+    if six.PY2:
+        apt_install('python-psutil', fatal=True)
+    else:
+        apt_install('python3-psutil', fatal=True)
     import psutil
 
 CA_CERT_PATH = '/usr/local/share/ca-certificates/keystone_juju_ca_cert.crt'
@@ -152,7 +156,8 @@ class OSContextGenerator(object):
 
         if self.missing_data:
             self.complete = False
-            log('Missing required data: %s' % ' '.join(self.missing_data), level=INFO)
+            log('Missing required data: %s' % ' '.join(self.missing_data),
+                level=INFO)
         else:
             self.complete = True
         return self.complete
@@ -210,8 +215,9 @@ class SharedDBContext(OSContextGenerator):
                 hostname_key = "{}_hostname".format(self.relation_prefix)
             else:
                 hostname_key = "hostname"
-            access_hostname = get_address_in_network(access_network,
-                                                     unit_get('private-address'))
+            access_hostname = get_address_in_network(
+                access_network,
+                unit_get('private-address'))
             set_hostname = relation_get(attribute=hostname_key,
                                         unit=local_unit())
             if set_hostname != access_hostname:
@@ -305,7 +311,10 @@ def db_ssl(rdata, ctxt, ssl_dir):
 
 class IdentityServiceContext(OSContextGenerator):
 
-    def __init__(self, service=None, service_user=None, rel_name='identity-service'):
+    def __init__(self,
+                 service=None,
+                 service_user=None,
+                 rel_name='identity-service'):
         self.service = service
         self.service_user = service_user
         self.rel_name = rel_name
@@ -392,16 +401,20 @@ class AMQPContext(OSContextGenerator):
         for rid in relation_ids(self.rel_name):
             ha_vip_only = False
             self.related = True
+            transport_hosts = None
+            rabbitmq_port = '5672'
             for unit in related_units(rid):
                 if relation_get('clustered', rid=rid, unit=unit):
                     ctxt['clustered'] = True
                     vip = relation_get('vip', rid=rid, unit=unit)
                     vip = format_ipv6_addr(vip) or vip
                     ctxt['rabbitmq_host'] = vip
+                    transport_hosts = [vip]
                 else:
                     host = relation_get('private-address', rid=rid, unit=unit)
                     host = format_ipv6_addr(host) or host
                     ctxt['rabbitmq_host'] = host
+                    transport_hosts = [host]
 
                 ctxt.update({
                     'rabbitmq_user': username,
@@ -413,6 +426,7 @@ class AMQPContext(OSContextGenerator):
                 ssl_port = relation_get('ssl_port', rid=rid, unit=unit)
                 if ssl_port:
                     ctxt['rabbit_ssl_port'] = ssl_port
+                    rabbitmq_port = ssl_port
 
                 ssl_ca = relation_get('ssl_ca', rid=rid, unit=unit)
                 if ssl_ca:
@@ -449,7 +463,19 @@ class AMQPContext(OSContextGenerator):
                     host = format_ipv6_addr(host) or host
                     rabbitmq_hosts.append(host)
 
-                ctxt['rabbitmq_hosts'] = ','.join(sorted(rabbitmq_hosts))
+                rabbitmq_hosts = sorted(rabbitmq_hosts)
+                ctxt['rabbitmq_hosts'] = ','.join(rabbitmq_hosts)
+                transport_hosts = rabbitmq_hosts
+
+            if transport_hosts:
+                transport_url_hosts = ','.join([
+                    "{}:{}@{}:{}".format(ctxt['rabbitmq_user'],
+                                         ctxt['rabbitmq_password'],
+                                         host_,
+                                         rabbitmq_port)
+                    for host_ in transport_hosts])
+                ctxt['transport_url'] = "rabbit://{}/{}".format(
+                    transport_url_hosts, vhost)
 
         oslo_messaging_flags = conf.get('oslo-messaging-flags', None)
         if oslo_messaging_flags:
@@ -481,13 +507,16 @@ class CephContext(OSContextGenerator):
                     ctxt['auth'] = relation_get('auth', rid=rid, unit=unit)
                 if not ctxt.get('key'):
                     ctxt['key'] = relation_get('key', rid=rid, unit=unit)
-                ceph_pub_addr = relation_get('ceph-public-address', rid=rid,
+
+                ceph_addrs = relation_get('ceph-public-address', rid=rid,
+                                          unit=unit)
+                if ceph_addrs:
+                    for addr in ceph_addrs.split(' '):
+                        mon_hosts.append(format_ipv6_addr(addr) or addr)
+                else:
+                    priv_addr = relation_get('private-address', rid=rid,
                                              unit=unit)
-                unit_priv_addr = relation_get('private-address', rid=rid,
-                                              unit=unit)
-                ceph_addr = ceph_pub_addr or unit_priv_addr
-                ceph_addr = format_ipv6_addr(ceph_addr) or ceph_addr
-                mon_hosts.append(ceph_addr)
+                    mon_hosts.append(format_ipv6_addr(priv_addr) or priv_addr)
 
         ctxt['mon_hosts'] = ' '.join(sorted(mon_hosts))
 
@@ -1576,7 +1605,8 @@ class MemcacheContext(OSContextGenerator):
         if ctxt['use_memcache']:
             # Trusty version of memcached does not support ::1 as a listen
             # address so use host file entry instead
-            if lsb_release()['DISTRIB_CODENAME'].lower() > 'trusty':
+            release = lsb_release()['DISTRIB_CODENAME'].lower()
+            if CompareHostReleases(release) > 'trusty':
                 ctxt['memcache_server'] = '::1'
             else:
                 ctxt['memcache_server'] = 'ip6-localhost'

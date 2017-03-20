@@ -19,7 +19,10 @@ from charmhelpers.core.hookenv import (
 from charmhelpers.contrib.openstack.context import (
     OSContextGenerator,
 )
-from charmhelpers.contrib.openstack.utils import get_os_codename_package
+from charmhelpers.contrib.openstack.utils import (
+    get_os_codename_package,
+    CompareOpenStackReleases,
+)
 
 
 class CephBackupSubordinateContext(OSContextGenerator):
@@ -32,7 +35,8 @@ class CephBackupSubordinateContext(OSContextGenerator):
         if not is_relation_made('ceph', 'key'):
             return {}
 
-        if get_os_codename_package('cinder-common') < "icehouse":
+        release = get_os_codename_package('cinder-common')
+        if CompareOpenStackReleases(release) < "icehouse":
             raise Exception("Unsupported version of Openstack")
 
         service = service_name()
