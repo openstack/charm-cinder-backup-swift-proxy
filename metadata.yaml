@@ -9,6 +9,7 @@ tags:
   - miscellaneous
 series:
   - xenial
+  - zesty
   - trusty
   - yakkety
 subordinate: true

@@ -229,6 +229,9 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
         if self._get_openstack_release() >= self.trusty_liberty:
             services[self.keystone_sentry] = ['apache2']
 
+        if self._get_openstack_release() >= self.xenial_ocata:
+            services[self.cinder_sentry].remove('cinder-api')
+
         ret = u.validate_services_by_name(services)
         if ret:
             amulet.raise_status(amulet.FAIL, msg=ret)
@@ -570,6 +573,11 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
         else:
             # Juno or earlier
             expected['DEFAULT'].update(expected_rmq)
+
+        if self._get_openstack_release() >= self.xenial_ocata:
+            expected['DEFAULT'].pop('volumes_dir')
+            expected['DEFAULT'].pop('volume_group')
+            expected['DEFAULT'].pop('enabled_backends')
 
         for section, pairs in expected.iteritems():
             ret = u.validate_config_data(unit, conf, section, pairs)
