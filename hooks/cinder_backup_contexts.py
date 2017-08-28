@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 from charmhelpers.core.hookenv import (
     service_name,
     is_relation_made,
@@ -47,6 +49,9 @@ class CephBackupSubordinateContext(OSContextGenerator):
                     "sections": {
                         'DEFAULT': [
                             ('backup_driver', backup_driver),
+                            ('backup_ceph_conf',
+                                os.path.join('/var/lib/charm',
+                                             service, 'ceph.conf')),
                             ('backup_ceph_pool', service),
                             ('backup_ceph_user', service),
                         ]

@@ -38,6 +38,9 @@ class TestCinderBackupContext(CharmTestCase):
                           {'sections': {'DEFAULT':
                                         [('backup_driver',
                                           'cinder.backup.drivers.ceph'),
+                                         ('backup_ceph_conf',
+                                          '/var/lib/charm/'
+                                          'cinder-backup-ut/ceph.conf'),
                                          ('backup_ceph_pool',
                                           'cinder-backup-ut'),
                                          ('backup_ceph_user',

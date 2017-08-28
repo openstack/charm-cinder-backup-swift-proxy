@@ -400,6 +400,8 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
         sub = ('{"cinder": {"/etc/cinder/cinder.conf": {"sections": '
                '{"DEFAULT": ['
                '["backup_driver", "cinder.backup.drivers.ceph"], '
+               '["backup_ceph_conf", '
+               '"/var/lib/charm/cinder-backup/ceph.conf"], '
                '["backup_ceph_pool", "cinder-backup"], '
                '["backup_ceph_user", "cinder-backup"]]}}}}')
         expected = {
