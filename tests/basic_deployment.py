@@ -782,17 +782,17 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
 
         name = "demo-vol"
         vols = self.cinder.volumes.list()
-        cinder_vols = [v for v in vols if v.display_name == name]
+        cinder_vols = [v for v in vols if v.name == name]
         if not cinder_vols:
             # NOTE(hopem): it appears that at some point cinder-backup stopped
             # restoring volume metadata properly so revert to default name if
             # original is not found
             name = "restore_backup_%s" % (vol_backup.id)
-            cinder_vols = [v for v in vols if v.display_name == name]
+            cinder_vols = [v for v in vols if v.name == name]
 
         if not cinder_vols:
             msg = ("Could not find restore vol '%s' in %s" %
-                   (name, [v.display_name for v in vols]))
+                   (name, [v.name for v in vols]))
             u.log.error(msg)
             amulet.raise_status(amulet.FAIL, msg=msg)
 
