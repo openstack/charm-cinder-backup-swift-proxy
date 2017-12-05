@@ -9,8 +9,8 @@ tags:
   - miscellaneous
 series:
   - xenial
+  - bionic
   - artful
-  - zesty
   - trusty
 subordinate: true
 provides:
