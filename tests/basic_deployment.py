@@ -248,7 +248,7 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
             }]
         else:
             expected = [{
-                'name': 'cinderv3_cinderv2',
+                'name': 'cinderv2_cinderv3',
                 'enabled': True,
                 'tenantId': u.not_null,
                 'id': u.not_null,
@@ -496,7 +496,7 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
             'service_host': u.valid_ip
         }
         if self._get_openstack_release() >= self.xenial_pike:
-            expected['service_username'] = 'cinderv3_cinderv2'
+            expected['service_username'] = 'cinderv2_cinderv3'
         ret = u.validate_relation_data(unit, relation, expected)
         if ret:
             msg = u.relation_error('identity-service cinder', ret)
