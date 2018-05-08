@@ -67,7 +67,8 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
             {'name': 'percona-cluster'},
             {'name': 'keystone'},
             {'name': 'rabbitmq-server'},
-            {'name': 'ceph', 'units': 3},
+            {'name': 'ceph-mon', 'units': 3},
+            {'name': 'ceph-osd', 'units': 3},
             {'name': 'cinder'},
             {'name': 'cinder-ceph'},
         ]
@@ -78,8 +79,9 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
         """Add all of the relations for the services."""
 
         relations = {
-            'cinder-backup:ceph': 'ceph:client',
-            'cinder-ceph:ceph': 'ceph:client',
+            'cinder-backup:ceph': 'ceph-mon:client',
+            'cinder-ceph:ceph': 'ceph-mon:client',
+            'ceph-osd:mon': 'ceph-mon:osd',
             'cinder:storage-backend': 'cinder-ceph:storage-backend',
             'cinder:backup-backend': 'cinder-backup:backup-backend',
             'keystone:shared-db': 'percona-cluster:shared-db',
@@ -108,10 +110,16 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
             'auth-supported': 'none',
             'fsid': '6547bd3e-1397-11e2-82e5-53567c8d32dc',
             'monitor-secret': 'AQCXrnZQwI7KGBAAiPofmKEXKxu5bUzoYLVkbQ==',
-            'osd-reformat': 'yes',
-            'ephemeral-unmount': '/mnt',
-            'osd-devices': '/dev/vdb /srv/ceph'
         }
+
+        # Include a non-existent device as osd-devices is a whitelist,
+        # and this will catch cases where proposals attempt to change that.
+        ceph_osd_config = {
+            'osd-reformat': True,
+            'ephemeral-unmount': '/mnt',
+            'osd-devices': '/dev/vdb /srv/ceph /dev/test-non-existent'
+        }
+
         cinder_ceph_config = {
             'ceph-osd-replication-count': '3',
         }
@@ -119,7 +127,8 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
             'keystone': keystone_config,
             'percona-cluster': pxc_config,
             'cinder': cinder_config,
-            'ceph': ceph_config,
+            'ceph-mon': ceph_config,
+            'ceph-osd': ceph_osd_config,
             'cinder-ceph': cinder_ceph_config,
             'cinder-backup': cinder_ceph_config,
         }
@@ -132,9 +141,12 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
         self.keystone_sentry = self.d.sentry['keystone'][0]
         self.rabbitmq_sentry = self.d.sentry['rabbitmq-server'][0]
         self.cinder_sentry = self.d.sentry['cinder'][0]
-        self.ceph0_sentry = self.d.sentry['ceph'][0]
-        self.ceph1_sentry = self.d.sentry['ceph'][1]
-        self.ceph2_sentry = self.d.sentry['ceph'][2]
+        self.ceph0_sentry = self.d.sentry['ceph-mon'][0]
+        self.ceph1_sentry = self.d.sentry['ceph-mon'][1]
+        self.ceph2_sentry = self.d.sentry['ceph-mon'][2]
+        self.ceph_osd0_sentry = self.d.sentry['ceph-osd'][0]
+        self.ceph_osd1_sentry = self.d.sentry['ceph-osd'][1]
+        self.ceph_osd2_sentry = self.d.sentry['ceph-osd'][2]
         self.cinder_backup_sentry = self.d.sentry['cinder-backup'][0]
         u.log.debug('openstack release val: {}'.format(
             self._get_openstack_release()))
@@ -142,147 +154,46 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
             self._get_openstack_release_string()))
 
         # Authenticate admin with keystone
-        self.keystone = u.authenticate_keystone_admin(self.keystone_sentry,
-                                                      user='admin',
-                                                      password='openstack',
-                                                      tenant='admin')
+        self.keystone_session, self.keystone = u.get_default_keystone_session(
+            self.keystone_sentry,
+            openstack_release=self._get_openstack_release())
+
         # Authenticate admin with cinder endpoint
-        self.cinder = u.authenticate_cinder_admin(self.keystone_sentry,
-                                                  username='admin',
-                                                  password='openstack',
-                                                  tenant='admin')
-
-        # Create a demo tenant/role/user
-        self.demo_tenant = 'demoTenant'
-        self.demo_role = 'demoRole'
-        self.demo_user = 'demoUser'
-        if not u.tenant_exists(self.keystone, self.demo_tenant):
-            tenant = self.keystone.tenants.create(tenant_name=self.demo_tenant,
-                                                  description='demo tenant',
-                                                  enabled=True)
-            self.keystone.roles.create(name=self.demo_role)
-            self.keystone.users.create(name=self.demo_user,
-                                       password='password',
-                                       tenant_id=tenant.id,
-                                       email='demo@demo.com')
-
-        # Authenticate demo user with keystone
-        self.keystone_demo = u.authenticate_keystone_user(self.keystone,
-                                                          self.demo_user,
-                                                          'password',
-                                                          self.demo_tenant)
-
-        # Authenticate demo user with nova-api
-        self.nova_demo = u.authenticate_nova_user(self.keystone,
-                                                  self.demo_user,
-                                                  'password',
-                                                  self.demo_tenant)
-
-    def test_100_ceph_processes(self):
-        """Verify that the expected service processes are running
-        on each ceph unit."""
-
-        # Process name and quantity of processes to expect on each unit
-        ceph_processes = {
-            'ceph-mon': 1,
-            'ceph-osd': 2
-        }
-
-        # Units with process names and PID quantities expected
-        expected_processes = {
-            self.ceph0_sentry: ceph_processes,
-            self.ceph1_sentry: ceph_processes,
-            self.ceph2_sentry: ceph_processes
-        }
-
-        actual_pids = u.get_unit_process_ids(expected_processes)
-        ret = u.validate_unit_process_ids(expected_processes, actual_pids)
-        if ret:
-            amulet.raise_status(amulet.FAIL, msg=ret)
+        if self._get_openstack_release() >= self.xenial_pike:
+            api_version = 2
+        else:
+            api_version = 1
+        self.cinder = u.authenticate_cinder_admin(self.keystone, api_version)
 
     def test_102_services(self):
         """Verify the expected services are running on the service units."""
+        if self._get_openstack_release() >= self.xenial_ocata:
+            cinder_services = ['apache2',
+                               'cinder-scheduler',
+                               'cinder-volume']
+        else:
+            cinder_services = ['cinder-api',
+                               'cinder-scheduler',
+                               'cinder-volume']
         services = {
-            self.rabbitmq_sentry: ['rabbitmq-server'],
-            self.keystone_sentry: ['keystone'],
-            self.cinder_sentry: ['cinder-api',
-                                 'cinder-scheduler',
-                                 'cinder-volume'],
+            self.cinder_sentry: cinder_services,
         }
 
-        if self._get_openstack_release() < self.xenial_mitaka:
-            # For upstart systems only.  Ceph services under systemd
-            # are checked by process name instead.
-            ceph_services = [
-                'ceph-mon-all',
-                'ceph-mon id=`hostname`',
-                'ceph-osd-all',
-                'ceph-osd id={}'.format(u.get_ceph_osd_id_cmd(0)),
-                'ceph-osd id={}'.format(u.get_ceph_osd_id_cmd(1))
-            ]
-            services[self.ceph0_sentry] = ceph_services
-            services[self.ceph1_sentry] = ceph_services
-            services[self.ceph2_sentry] = ceph_services
-
-        if self._get_openstack_release() >= self.trusty_liberty:
-            services[self.keystone_sentry] = ['apache2']
-
-        if self._get_openstack_release() >= self.xenial_ocata:
-            services[self.cinder_sentry].remove('cinder-api')
-
         ret = u.validate_services_by_name(services)
-        if ret:
-            amulet.raise_status(amulet.FAIL, msg=ret)
-
-    def test_110_users(self):
-        """Verify expected users."""
-        u.log.debug('Checking keystone users...')
-
-        if self._get_openstack_release() < self.xenial_pike:
-            expected = [{
-                'name': 'cinder_cinderv2',
-                'enabled': True,
-                'tenantId': u.not_null,
-                'id': u.not_null,
-                'email': 'juju@localhost',
-            }]
-        else:
-            expected = [{
-                'name': 'cinderv2_cinderv3',
-                'enabled': True,
-                'tenantId': u.not_null,
-                'id': u.not_null,
-                'email': 'juju@localhost',
-            }]
-
-        expected.append({
-            'name': 'admin',
-            'enabled': True,
-            'tenantId': u.not_null,
-            'id': u.not_null,
-            'email': 'juju@localhost',
-        })
-
-        actual = self.keystone.users.list()
-        ret = u.validate_user_data(expected, actual)
         if ret:
             amulet.raise_status(amulet.FAIL, msg=ret)
 
     def test_112_service_catalog(self):
         """Verify that the service catalog endpoint data"""
         u.log.debug('Checking keystone service catalog...')
-        endpoint_vol = {
-            'adminURL': u.valid_url,
-            'region': 'RegionOne',
-            'publicURL': u.valid_url,
-            'internalURL': u.valid_url
-        }
-        endpoint_id = {
-            'adminURL': u.valid_url,
-            'region': 'RegionOne',
-            'publicURL': u.valid_url,
-            'internalURL': u.valid_url
-        }
+        endpoint_vol = {'adminURL': u.valid_url,
+                        'region': 'RegionOne',
+                        'publicURL': u.valid_url,
+                        'internalURL': u.valid_url}
+        endpoint_id = {'adminURL': u.valid_url,
+                       'region': 'RegionOne',
+                       'publicURL': u.valid_url,
+                       'internalURL': u.valid_url}
         if self._get_openstack_release() >= self.trusty_icehouse:
             endpoint_vol['id'] = u.not_null
             endpoint_id['id'] = u.not_null
@@ -295,29 +206,49 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
             # Ocata and prior
             expected = {'identity': [endpoint_id],
                         'volume': [endpoint_id]}
-
         actual = self.keystone.service_catalog.get_endpoints()
 
-        ret = u.validate_svc_catalog_endpoint_data(expected, actual)
+        ret = u.validate_svc_catalog_endpoint_data(
+            expected,
+            actual,
+            openstack_release=self._get_openstack_release())
         if ret:
             amulet.raise_status(amulet.FAIL, msg=ret)
 
     def test_114_cinder_endpoint(self):
         """Verify the cinder endpoint data."""
-        u.log.debug('Checking cinder api endpoint data...')
+        u.log.debug('Checking cinder endpoint...')
         endpoints = self.keystone.endpoints.list()
         admin_port = internal_port = public_port = '8776'
-        expected = {
-            'id': u.not_null,
-            'region': 'RegionOne',
-            'adminurl': u.valid_url,
-            'internalurl': u.valid_url,
-            'publicurl': u.valid_url,
-            'service_id': u.not_null
-        }
-
-        ret = u.validate_endpoint_data(endpoints, admin_port, internal_port,
-                                       public_port, expected)
+        if self._get_openstack_release() >= self.xenial_queens:
+            expected = {
+                'id': u.not_null,
+                'region': 'RegionOne',
+                'region_id': 'RegionOne',
+                'url': u.valid_url,
+                'interface': u.not_null,
+                'service_id': u.not_null}
+            ret = u.validate_v3_endpoint_data(
+                endpoints,
+                admin_port,
+                internal_port,
+                public_port,
+                expected,
+                6)
+        else:
+            expected = {
+                'id': u.not_null,
+                'region': 'RegionOne',
+                'adminurl': u.valid_url,
+                'internalurl': u.valid_url,
+                'publicurl': u.valid_url,
+                'service_id': u.not_null}
+            ret = u.validate_v2_endpoint_data(
+                endpoints,
+                admin_port,
+                internal_port,
+                public_port,
+                expected)
         if ret:
             amulet.raise_status(amulet.FAIL,
                                 msg='cinder endpoint: {}'.format(ret))
@@ -342,7 +273,7 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
         client_unit = self.cinder_backup_sentry
         broker_req = json.loads(client_unit.relation(
             'ceph',
-            'ceph:client')['broker_req'])
+            'ceph-mon:client')['broker_req'])
         return broker_req
 
     def get_broker_response(self):
@@ -371,7 +302,7 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
         u.log.debug('Checking cinder-backup:ceph to ceph:client '
                     'relation data...')
         unit = self.cinder_backup_sentry
-        relation = ['ceph', 'ceph:client']
+        relation = ['ceph', 'ceph-mon:client']
 
         req = {
             "api-version": 1,
@@ -385,15 +316,15 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
         }
         ret = u.validate_relation_data(unit, relation, expected)
         if ret:
-            msg = u.relation_error('cinder-backup ceph', ret)
+            msg = u.relation_error('cinder-backup ceph-mon', ret)
             amulet.raise_status(amulet.FAIL, msg=msg)
         ret = self.validate_broker_req(unit, relation, req)
         if ret:
-            msg = u.relation_error('cinder-backup ceph', ret)
+            msg = u.relation_error('cinder-backup ceph-mon', ret)
             amulet.raise_status(amulet.FAIL, msg=msg)
 
     def test_201_ceph_cinderbackup_ceph_relation(self):
-        u.log.debug('Checking ceph:client to cinder-backup:ceph '
+        u.log.debug('Checking ceph-mon:client to cinder-backup:ceph '
                     'relation data...')
         ceph_unit = self.ceph0_sentry
         relation = ['client', 'cinder-backup:ceph']
@@ -816,17 +747,27 @@ class CinderBackupBasicDeployment(OpenStackAmuletDeployment):
 
         name = "demo-vol"
         vols = self.cinder.volumes.list()
-        cinder_vols = [v for v in vols if v.name == name]
+        try:
+            cinder_vols = [v for v in vols if v.name == name]
+        except AttributeError:
+            cinder_vols = [v for v in vols if v.display_name == name]
         if not cinder_vols:
             # NOTE(hopem): it appears that at some point cinder-backup stopped
             # restoring volume metadata properly so revert to default name if
             # original is not found
             name = "restore_backup_%s" % (vol_backup.id)
-            cinder_vols = [v for v in vols if v.name == name]
+            try:
+                cinder_vols = [v for v in vols if v.name == name]
+            except AttributeError:
+                cinder_vols = [v for v in vols if v.display_name == name]
 
         if not cinder_vols:
-            msg = ("Could not find restore vol '%s' in %s" %
-                   (name, [v.name for v in vols]))
+            try:
+                msg = ("Could not find restore vol '%s' in %s" %
+                       (name, [v.name for v in vols]))
+            except AttributeError:
+                msg = ("Could not find restore vol '%s' in %s" %
+                       (name, [v.display_name for v in vols]))
             u.log.error(msg)
             amulet.raise_status(amulet.FAIL, msg=msg)
 

@@ -5,3 +5,4 @@ bin
 *.sw[nop]
 *.py[oc]
 *.pyc
+func-results.json
