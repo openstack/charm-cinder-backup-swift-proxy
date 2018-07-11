@@ -10,7 +10,7 @@ tags:
 series:
   - xenial
   - bionic
-  - artful
+  - cosmic
   - trusty
 subordinate: true
 provides:
