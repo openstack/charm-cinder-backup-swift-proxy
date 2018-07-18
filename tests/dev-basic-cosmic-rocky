@@ -14,12 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Amulet tests on a basic cinder backup deployment on xenial-queens."""
+"""Amulet tests on a basic cinder-backup deployment on cosmic-rocky."""
 
 from basic_deployment import CinderBackupBasicDeployment
 
 if __name__ == '__main__':
-    deployment = CinderBackupBasicDeployment(series='xenial',
-                                             openstack='cloud:xenial-queens',
-                                             source='cloud:xenial-updates/queens')
+    deployment = CinderBackupBasicDeployment(series='cosmic')
     deployment.run_tests()
