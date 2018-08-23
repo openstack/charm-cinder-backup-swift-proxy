@@ -4,7 +4,10 @@ Cinder Backup Service
 Overview
 ========
 
-This charm provides a 
+This charm provides a Cinder Backup component as part of OpenStack Cinder service.
+It is intended to be used alongside the other OpenStack components, even though it must
+have relation set up with core Cinder service.
+
 
 To use:
 
