@@ -1,6 +1,6 @@
-name: cinder-backup
+name: cinder-backup-swift
 summary: Cinder-backup integration for OpenStack Block Storage
-maintainer: Edward Hope-Morley <opentastic@gmail.com>
+maintainer: Yoshi Kadokawa <yoshi.kadokawa@canonical.com>
 description: |
  Cinder is the block storage service for the Openstack project.
  .
@@ -8,10 +8,7 @@ description: |
 tags:
   - miscellaneous
 series:
-  - xenial
   - bionic
-  - cosmic
-  - trusty
 subordinate: true
 provides:
   backup-backend:
@@ -21,5 +18,3 @@ requires:
   juju-info:
     interface: juju-info
     scope: container
-  ceph:
-    interface: ceph-client

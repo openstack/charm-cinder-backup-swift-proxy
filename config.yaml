@@ -1,12 +1,68 @@
 options:
-  ceph-osd-replication-count:
-    default: 3
-    type: int
+  endpoint-url:
+    type: string
+    default:
     description: |
-      This value dictates the number of replicas ceph must make of any
-      object it stores withing the cinder rbd pool. Of course, this only
-      applies if using Ceph as a backend store. Note that once the cinder
-      rbd pool has been created, changing this value will not have any
-      effect (although it can be changed in ceph by manually configuring
-      your ceph cluster).
-
+      The URL of Swift endpoint.
+  auth-url:
+    type: string
+    default:
+    description: |
+      The URL of Keystone endpoint of Swift service.
+  swift-user:
+    type: string
+    default:
+    description: |
+      Swift user name for authentication.
+  swift-key:
+    type: string
+    default:
+    description: |
+      Swift key for authentication.
+  auth-version:
+    type: int
+    default:
+    description: |
+      The Swift authentication version. 
+      Specify "2" for auth 2.0 or "3" for auth 3.0.
+  tenant-name:
+    type: string
+    default: 
+    description: |
+      Swift tenant name. Required when connecting to an auth 2.0 system.
+  user-domain:
+    type: string
+    default: 
+    description: |
+      Swift user domain name. Required when connecting to an auth 3.0 system.
+  project-domain:
+    type: string
+    default: 
+    description: |
+      Swift project domain name. Required when connecting to an auth 3.0 system.
+  project-name:
+    type: string
+    default: 
+    description: |
+      Swift project name. Required when connecting to an auth 3.0 system.
+  container-name:
+    type: string
+    default: volumebackups
+    description: |
+      The default Swift container to use.
+  object-size:
+    type: int
+    default: 52428800
+    description: |
+      The size in bytes of Swift backup objects.
+      This size has to be multiple of swift-block-size.
+  block-size:
+    type: int
+    default: 32768
+    description: |
+      The size in bytes that changes are tracked for incremental backups.
+  ssl-ca:
+    type: string
+    default:
+    description: |
+      When the Swift endpoint is TLS-terminated, provide here the contents of ca cert file.
