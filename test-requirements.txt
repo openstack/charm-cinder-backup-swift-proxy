@@ -7,6 +7,12 @@ mock>=1.2
 flake8>=2.2.4,<=2.4.1
 os-testr>=0.4.1
 requests>=2.18.4
+
+# Unit test requirements
+charms.reactive
+git+https://github.com/openstack/charms.openstack#egg=charms.openstack
+
+
 # BEGIN: Amulet OpenStack Charm Helper Requirements
 # Liberty client lower constraints
 amulet>=1.14.3,<2.0;python_version=='2.7'
@@ -28,3 +34,4 @@ git+https://github.com/juju/charm-helpers.git#egg=charmhelpers
 pytz
 pyudev  # for ceph-* charm unit tests (not mocked?)
 git+https://github.com/openstack-charmers/zaza.git#egg=zaza;python_version>='3.0'
+git+https://github.com/openstack/charms.openstack#egg=charms.openstack
