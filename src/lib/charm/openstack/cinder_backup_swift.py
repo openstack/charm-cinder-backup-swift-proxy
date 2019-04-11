@@ -1,13 +1,11 @@
+
 from charmhelpers.core.hookenv import (
     config,
-    log,
-    relation_ids,
-    relation_set,
-    status_set,
-    service_name
+    status_set
 )
 from charmhelpers.core.host import service_restart, install_ca_cert
 from base64 import b64decode
+
 from charmhelpers.contrib.openstack.context import OSContextGenerator
 from charmhelpers.contrib.openstack.utils import get_os_codename_package,\
     CompareOpenStackReleases
@@ -15,18 +13,17 @@ from charms_openstack.charm import OpenStackCharm
 
 
 class CinderBackupSwiftCharm(OpenStackCharm):
-    service_name = name = 'cinder-backup'
+    name = 'cinder-backup-swift'
     packages = ['cinder-backup']
     release = 'queens'
 
-    def get_swift_config(self):
+    def get_swift_backup_config(self):
         status_set('active', 'Unit is ready')
-        name = "DEFAULT"
+        name = "cinder-backup"
         return name, SwiftBackupSubordinateContext()()
 
     def restart_service(self):
         service_restart('cinder-backup')
-
 
     def configure_ca(self):
         ca_cert = config('ssl-ca')
@@ -79,5 +76,12 @@ class SwiftBackupSubordinateContext(OSContextGenerator):
             ]
         else:
             raise Exception("Unsupported swift auth version")
-        return ctxt
-
+        return {
+            "cinder": {
+                "/etc/cinder/cinder.conf": {
+                    "sections": {
+                        'DEFAULT': ctxt
+                    }
+                }
+            }
+        }

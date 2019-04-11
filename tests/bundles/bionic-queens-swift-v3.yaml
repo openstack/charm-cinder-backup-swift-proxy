@@ -110,7 +110,7 @@ applications:
     num_units: 0
   cinder-backup-swift:
     series: bionic
-    charm: /home/alex/Documents/Code/localcharmrepo/charms/builds/cinder-backup-swift
+    charm: cinder-backup-swift
     num_units: 0
     options:
       auth-version: 3

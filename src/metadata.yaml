@@ -11,7 +11,7 @@ series:
   - bionic
 subordinate: true
 provides:
-  cinder-backup:
+  backup-backend:
     interface: cinder-backup
     scope: container
 requires:
