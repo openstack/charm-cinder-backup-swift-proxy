@@ -1,21 +1,23 @@
-Cinder Backup Service
+Cinder Backup to external Swift
 -------------------------------
 
 Overview
 ========
 
-This charm provides a Cinder Backup component as part of OpenStack Cinder service.
-It is intended to be used alongside the other OpenStack components, even though it must
-have relation set up with core Cinder service.
+Support for backing up volumes to external swift.
+Cinder-backup service configuration is propagated to the cinder charm.
+
+In order to use it external swift URL is needed along with authentication details.
 
 
 To use:
 
     juju deploy cinder
-    juju deploy -n 3 ceph
-    juju deploy cinder-backup
-    juju add-relation cinder-backup cinder
-    juju add-relation cinder-backup ceph
+    juju deploy cinder-backup-swift
+    juju add-relation cinder-backup-swift cinder
 
-Configuration
-=============
+
+# Bugs
+
+Please report bugs on [Launchpad](https://bugs.launchpad.net/charm-cinder-backup-swift/+filebug).
+For general questions please refer to the OpenStack [Charm Guide](https://github.com/openstack/charm-guide).

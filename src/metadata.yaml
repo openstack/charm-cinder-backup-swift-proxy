@@ -1,0 +1,20 @@
+name: cinder-backup-swift
+summary: Cinder-backup integration for OpenStack Block Storage
+maintainer: Alex Litvinov <alexander.litvinov@canonical.com>
+description: |
+ Cinder is the block storage service for the Openstack project.
+ .
+ This subordinate charm configures the Cinder backup service.
+tags:
+  - misc
+series:
+  - bionic
+subordinate: true
+provides:
+  backup-backend:
+    interface: cinder-backup
+    scope: container
+requires:
+  juju-info:
+    interface: juju-info
+    scope: container

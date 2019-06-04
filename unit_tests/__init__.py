@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd
+# Copyright 2019 Canonical Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,4 +13,10 @@
 # limitations under the License.
 
 import sys
-sys.path.append('hooks')
+
+sys.path.append('src')
+sys.path.append('src/lib')
+
+# Mock out charmhelpers so that we can test without it.
+import charms_openstack.test_mocks  # noqa
+charms_openstack.test_mocks.mock_charmhelpers()
