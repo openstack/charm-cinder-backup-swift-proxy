@@ -103,20 +103,13 @@ class TestCinderBackupSwiftHandlers(unittest.TestCase):
         # The keys are the function names that the hook attaches to.
         when_any_patterns = {
             'configure_cinder_backup': [
-                ('backup-backend.joined', 'backup-backend.changed')],
+                ('backup-backend.available', )],
         }
-        when_patterns = {
-            'update_config': [
-                ('config.changed', )],
-        }
+
         # check the when hooks are attached to the expected functions
         for t, p in [(_when_args, when_any_patterns),
-                     (_when_args, when_patterns),
                      ]:
             for f, args in t.items():
                 # check that function is in patterns
-                print(f)
                 self.assertTrue(f in p.keys())
-                # check that the lists are equal
-                l = [a['args'] for a in args]
-                self.assertEqual(l, p[f])
+
