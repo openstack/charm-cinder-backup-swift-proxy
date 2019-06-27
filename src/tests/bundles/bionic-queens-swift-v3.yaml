@@ -13,6 +13,8 @@ machines:
     series: bionic
   '6':
     series: bionic
+  '7':
+    series: bionic
 
 relations:
 - - nova-compute:amqp
@@ -73,6 +75,8 @@ relations:
   - swift-storage-z2:swift-storage
 - - swift-proxy:swift-storage
   - swift-storage-z3:swift-storage
+- - swift-proxy:swift-storage
+  - swift-storage-z4:swift-storage
 
 applications:
   ceph-mon:
@@ -110,7 +114,7 @@ applications:
     num_units: 0
   cinder-backup-swift:
     series: bionic
-    charm: cinder-backup-swift
+    charm: /home/alex/Documents/Code/localcharmrepo/charms/builds/cinder-backup-swift
     num_units: 0
     options:
       auth-version: 3
@@ -214,4 +218,13 @@ applications:
       block-device: "/dev/sdb"
     to:
     - '6'
+  swift-storage-z4:
+    series: bionic
+    charm: cs:swift-storage
+    num_units: 1
+    options:
+      zone: 4
+      block-device: "/dev/sdb"
+    to:
+    - '7'
 
