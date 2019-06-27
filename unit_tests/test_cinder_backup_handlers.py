@@ -101,14 +101,15 @@ class TestCinderBackupSwiftHandlers(unittest.TestCase):
         # test that the hooks actually registered the relation expressions that
         # are meaningful for this interface: this is to handle regressions.
         # The keys are the function names that the hook attaches to.
-        when_any_patterns = {
+        when_patterns = {
             'configure_cinder_backup': [
                 ('backup-backend.available', )],
         }
 
         # check the when hooks are attached to the expected functions
-        for t, p in [(_when_args, when_any_patterns),
+        for t, p in [(_when_args, when_patterns),
                      ]:
+
             for f, args in t.items():
                 # check that function is in patterns
                 self.assertTrue(f in p.keys())
