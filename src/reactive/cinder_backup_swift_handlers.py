@@ -18,7 +18,7 @@ flags.register_trigger(when='endpoint.backup-backend.changed',
                        clear_flag='config.complete')
 
 
-@reactive.when_any('backup-backend.available')
+@reactive.when('backup-backend.available')
 @reactive.when_not('config.complete')
 def configure_cinder_backup():
     # don't always have a relation context - obtain from the flag
