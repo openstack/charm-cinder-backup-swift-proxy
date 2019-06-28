@@ -28,7 +28,6 @@ def configure_cinder_backup():
         name, config = charm_instance.get_swift_backup_config()
         endp.publish(name, config)
         charm_instance.configure_ca()
-        charm_instance.restart_service()
         flags.set_flag('config.complete')
 
 
