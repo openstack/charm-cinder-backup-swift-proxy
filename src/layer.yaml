@@ -1,6 +1,8 @@
 includes:
   - 'layer:openstack'
   - 'interface:cinder-backup'
+repo: https://github.com/openstack/charm-cinder-backup-swift
 options:
   basic:
-    repo: https://github.com/lolwww/charm-cinder-backup-swift-reactive
+    use_venv: true
+    include_system_packages: true
