@@ -1,19 +1,4 @@
-machines:
-  '0':
-    series: bionic
-  '1':
-    series: bionic
-  '2':
-    series: bionic
-  '3':
-    series: bionic
-  '4':
-    series: xenial
-  '5':
-    series: xenial
-  '6':
-    series: xenial
-
+series: bionic
 relations:
 - - nova-compute:amqp
   - rabbitmq-server:amqp
@@ -68,11 +53,7 @@ relations:
 - - swift-proxy:identity-service
   - swift-keystone:identity-service
 - - swift-proxy:swift-storage
-  - swift-storage-z1:swift-storage
-- - swift-proxy:swift-storage
-  - swift-storage-z2:swift-storage
-- - swift-proxy:swift-storage
-  - swift-storage-z3:swift-storage
+  - swift-storage:swift-storage
 
 applications:
   ceph-mon:
@@ -81,20 +62,12 @@ applications:
     num_units: 3
     options:
       monitor-count: '3'
-    to:
-    - lxd:1
-    - lxd:2
-    - lxd:3
   ceph-osd:
     series: bionic
     charm: cs:ceph-osd
     num_units: 3
-    options:
-      osd-devices: /dev/sdb
-    to:
-    - '1'
-    - '2'
-    - '3'
+    storage:
+      osd-devices: 'cinder,10G'
   cinder:
     series: bionic
     charm: cs:cinder
@@ -102,8 +75,6 @@ applications:
     options:
       block-device: None
       glance-api-version: 2
-    to:
-    - lxd:1
   cinder-ceph:
     series: bionic
     charm: cs:cinder-ceph
@@ -121,14 +92,10 @@ applications:
     series: bionic
     charm: cs:glance
     num_units: 1
-    to:
-    - lxd:2
   keystone:
     series: bionic
     charm: cs:keystone
     num_units: 1
-    to:
-    - lxd:3
   mysql:
     series: bionic
     charm: cs:percona-cluster
@@ -136,85 +103,42 @@ applications:
     options:
       dataset-size: 25%
       max-connections: 1000
-    to:
-    - lxd:1
   nova-cloud-controller:
     series: bionic
     charm: cs:nova-cloud-controller
     num_units: 1
-    to:
-    - lxd:2
   rabbitmq-server:
     series: bionic
     charm: cs:rabbitmq-server
     num_units: 1
-    to:
-    - lxd:3
   nova-compute:
     series: bionic
     charm: cs:nova-compute
     num_units: 1
-    to:
-    - '0'
 
 # external swift
   swift-keystone:
-    series: xenial
     charm: cs:keystone
     num_units: 1
     options:
-      openstack-origin: cloud:xenial-pike
       admin-password: openstack
       preferred-api-version: 2
-    to:
-    - lxd:4
   swift-mysql:
-    series: xenial
     charm: cs:percona-cluster
     num_units: 1
     options:
       dataset-size: 25%
       max-connections: 1000
-    to:
-    - lxd:5
   swift-proxy:
-    series: xenial
     charm: cs:swift-proxy
     num_units: 1
     options:
-      openstack-origin: cloud:xenial-pike    
       zone-assignment: manual
-      replicas: 3
-    to:
-    - lxd:6
-  swift-storage-z1:
-    series: xenial
+      replicas: 1
+  swift-storage:
     charm: cs:swift-storage
     num_units: 1
     options:
-      openstack-origin: cloud:xenial-pike    
       zone: 1
-      block-device: "/dev/sdb"
-    to:
-    - '4'
-  swift-storage-z2:
-    series: xenial
-    charm: cs:swift-storage
-    num_units: 1
-    options:
-      openstack-origin: cloud:xenial-pike    
-      zone: 2
-      block-device: "/dev/sdb"
-    to:
-    - '5'
-  swift-storage-z3:
-    series: xenial
-    charm: cs:swift-storage
-    num_units: 1
-    options:
-      openstack-origin: cloud:xenial-pike    
-      zone: 3
-      block-device: "/dev/sdb"
-    to:
-    - '6'
-
+    storage:
+      block-devices: 'cinder,10G'

@@ -113,4 +113,3 @@ class TestCinderBackupSwiftHandlers(unittest.TestCase):
             for f, args in t.items():
                 # check that function is in patterns
                 self.assertTrue(f in p.keys())
-

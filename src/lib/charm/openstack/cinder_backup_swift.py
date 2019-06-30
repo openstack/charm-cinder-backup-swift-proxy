@@ -3,7 +3,7 @@ from charmhelpers.core.hookenv import (
     config,
     status_set
 )
-from charmhelpers.core.host import service_restart, install_ca_cert
+from charmhelpers.core.host import install_ca_cert
 from base64 import b64decode
 
 from charmhelpers.contrib.openstack.context import OSContextGenerator
@@ -21,9 +21,6 @@ class CinderBackupSwiftCharm(OpenStackCharm):
         status_set('active', 'Unit is ready')
         name = "cinder-backup"
         return name, SwiftBackupSubordinateContext()()
-
-    def restart_service(self):
-        service_restart('cinder-backup')
 
     def configure_ca(self):
         ca_cert = config('ssl-ca')
