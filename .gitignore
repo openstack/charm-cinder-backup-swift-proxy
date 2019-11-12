@@ -2,7 +2,9 @@ bin
 .coverage
 .testrepository
 .tox
+.stestr
 *.sw[nop]
 *.py[oc]
 *.pyc
+build
 func-results.json
