@@ -33,7 +33,7 @@ relations:
 - - cinder-ceph:storage-backend
   - cinder:storage-backend
 - - cinder
-  - cinder-backup-swift
+  - cinder-backup-swift-proxy
 - - ceph-mon:client
   - nova-compute:ceph
 - - nova-compute:ceph-access
@@ -79,9 +79,9 @@ applications:
     series: bionic
     charm: cs:cinder-ceph
     num_units: 0
-  cinder-backup-swift:
+  cinder-backup-swift-proxy:
     series: bionic
-    charm: cinder-backup-swift
+    charm: cinder-backup-swift-proxy
     num_units: 0
     options:
       auth-version: 3

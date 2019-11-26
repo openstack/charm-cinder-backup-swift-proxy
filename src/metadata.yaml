@@ -1,4 +1,4 @@
-name: cinder-backup-swift
+name: cinder-backup-swift-proxy
 summary: Cinder-backup integration for OpenStack Block Storage
 maintainer: Alex Litvinov <alexander.litvinov@canonical.com>
 description: |
