@@ -1,4 +1,4 @@
-charm_name: cinder-backup-swift
+charm_name: cinder-backup-swift-proxy
 gate_bundles:
   - bionic-queens-swift-v3
   - bionic-queens-swift-v2

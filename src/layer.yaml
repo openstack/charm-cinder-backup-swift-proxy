@@ -1,7 +1,7 @@
 includes:
   - 'layer:openstack'
   - 'interface:cinder-backup'
-repo: https://github.com/openstack/charm-cinder-backup-swift
+repo: https://github.com/openstack/charm-cinder-backup-swift-proxy
 options:
   basic:
     use_venv: true

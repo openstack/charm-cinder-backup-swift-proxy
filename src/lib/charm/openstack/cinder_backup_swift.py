@@ -13,7 +13,7 @@ from charms_openstack.charm import OpenStackCharm
 
 
 class CinderBackupSwiftCharm(OpenStackCharm):
-    name = 'cinder-backup-swift'
+    name = 'cinder-backup-swift-proxy'
     packages = ['cinder-backup']
     release = 'queens'
 
