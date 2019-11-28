@@ -21,7 +21,8 @@ class Helper(test_utils.PatchHelper):
 
     def setUp(self):
         super().setUp()
-        self.patch_release(cinder_backup_swift_proxy.CinderBackupSwiftCharm.release)
+        self.patch_release(
+            cinder_backup_swift_proxy.CinderBackupSwiftCharm.release)
 
 
 class TestCinderBackupSwiftCharm(Helper):
