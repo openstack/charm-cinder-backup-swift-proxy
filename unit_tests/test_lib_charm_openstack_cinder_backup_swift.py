@@ -14,19 +14,19 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import charms_openstack.test_utils as test_utils
-import charm.openstack.cinder_backup_swift as cinder_backup_swift
+import charm.openstack.cinder_backup_swift_proxy as cinder_backup_swift_proxy
 
 
 class Helper(test_utils.PatchHelper):
 
     def setUp(self):
         super().setUp()
-        self.patch_release(cinder_backup_swift.CinderBackupSwiftCharm.release)
+        self.patch_release(cinder_backup_swift_proxy.CinderBackupSwiftCharm.release)
 
 
 class TestCinderBackupSwiftCharm(Helper):
 
     def test_swift_backup_name(self):
-        c = cinder_backup_swift.CinderBackupSwiftCharm()
+        c = cinder_backup_swift_proxy.CinderBackupSwiftCharm()
         result = c.get_swift_backup_config()
         self.assertEqual(result[0], 'cinder-backup')
