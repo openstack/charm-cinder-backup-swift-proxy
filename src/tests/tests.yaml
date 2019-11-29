@@ -6,7 +6,7 @@ smoke_bundles:
   - bionic-queens-swift-v3
   - bionic-queens-swift-v2
 configure:
-  - zaza.openstack.charm_tests.cinder_backup_swift.setup.configure_cinder_backup
+  - zaza.openstack.charm_tests.cinder_backup_swift_proxy.setup.configure_cinder_backup
 tests:
-  - zaza.openstack.charm_tests.cinder_backup_swift.tests.CinderBackupSwiftTest
+  - zaza.openstack.charm_tests.cinder_backup_swift_proxy.tests.CinderBackupSwiftTest
 

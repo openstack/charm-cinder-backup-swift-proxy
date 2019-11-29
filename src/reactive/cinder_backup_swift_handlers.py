@@ -5,7 +5,7 @@ import charms_openstack
 # This charm's library contains all of the handler code associated with
 # cinder-backup-swift-proxy -- we need to import it to get the definitions
 # for the charm.
-import charm.openstack.cinder_backup_swift  # noqa
+import charm.openstack.cinder_backup_swift_proxy  # noqa
 import charms.reactive.flags as flags
 from charms.reactive.relations import (
     endpoint_from_flag,
