@@ -9,6 +9,7 @@ tags:
   - misc
 series:
   - bionic
+  - focal
 subordinate: true
 provides:
   backup-backend:
