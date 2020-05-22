@@ -57,30 +57,25 @@ relations:
 
 applications:
   ceph-mon:
-    series: bionic
-    charm: cs:ceph-mon
+    charm: cs:~openstack-charmers-next/ceph-mon
     num_units: 3
     options:
       monitor-count: '3'
   ceph-osd:
-    series: bionic
-    charm: cs:ceph-osd
+    charm: cs:~openstack-charmers-next/ceph-osd
     num_units: 3
     storage:
       osd-devices: 'cinder,10G'
   cinder:
-    series: bionic
-    charm: cs:cinder
+    charm: cs:~openstack-charmers-next/cinder
     num_units: 1
     options:
       block-device: None
       glance-api-version: 2
   cinder-ceph:
-    series: bionic
-    charm: cs:cinder-ceph
+    charm: cs:~openstack-charmers-next/cinder-ceph
     num_units: 0
   cinder-backup-swift-proxy:
-    series: bionic
     charm: cinder-backup-swift-proxy
     num_units: 0
     options:
@@ -91,54 +86,48 @@ applications:
       project-domain: admin_domain
       project-name: admin
   glance:
-    series: bionic
-    charm: cs:glance
+    charm: cs:~openstack-charmers-next/glance
     num_units: 1
   keystone:
-    series: bionic
-    charm: cs:keystone
+    charm: cs:~openstack-charmers-next/keystone
     num_units: 1
   mysql:
-    series: bionic
-    charm: cs:percona-cluster
+    charm: cs:~openstack-charmers-next/percona-cluster
     num_units: 1
     options:
       dataset-size: 25%
       max-connections: 1000
   nova-cloud-controller:
-    series: bionic
-    charm: cs:nova-cloud-controller
+    charm: cs:~openstack-charmers-next/nova-cloud-controller
     num_units: 1
   rabbitmq-server:
-    series: bionic
-    charm: cs:rabbitmq-server
+    charm: cs:~openstack-charmers-next/rabbitmq-server
     num_units: 1
   nova-compute:
-    series: bionic
-    charm: cs:nova-compute
+    charm: cs:~openstack-charmers-next/nova-compute
     num_units: 1
 
 # external swift
   swift-keystone:
-    charm: cs:keystone
+    charm: cs:~openstack-charmers-next/keystone
     num_units: 1
     options:
       admin-password: openstack
       preferred-api-version: 3
   swift-mysql:
-    charm: cs:percona-cluster
+    charm: cs:~openstack-charmers-next/percona-cluster
     num_units: 1
     options:
       dataset-size: 25%
       max-connections: 1000
   swift-proxy:
-    charm: cs:swift-proxy
+    charm: cs:~openstack-charmers-next/swift-proxy
     num_units: 1
     options:
       zone-assignment: manual
       replicas: 1
   swift-storage:
-    charm: cs:swift-storage
+    charm: cs:~openstack-charmers-next/swift-storage
     num_units: 1
     options:
       zone: 1
