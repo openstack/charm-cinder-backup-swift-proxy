@@ -11,8 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from __future__ import absolute_import
-from __future__ import print_function
 import charms_openstack.test_utils as test_utils
 import charm.openstack.cinder_backup_swift_proxy as cinder_backup_swift_proxy
 
