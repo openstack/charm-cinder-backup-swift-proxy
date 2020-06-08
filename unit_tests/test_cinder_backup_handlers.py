@@ -14,7 +14,7 @@
 
 import unittest
 
-import mock
+from unittest import mock
 
 import reactive.cinder_backup_swift_handlers as handlers
 
