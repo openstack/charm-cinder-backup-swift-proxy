@@ -6,8 +6,13 @@ gate_bundles:
 smoke_bundles:
   - bionic-queens-swift-v3
   - bionic-queens-swift-v2
+dev_bundles:
+  - groovy-victoria-swift-v3
+  - focal-victoria-swift-v3
 configure:
   - zaza.openstack.charm_tests.cinder_backup_swift_proxy.setup.configure_cinder_backup
 tests:
   - zaza.openstack.charm_tests.cinder_backup_swift_proxy.tests.CinderBackupSwiftTest
-
+tests_options:
+  force_deploy:
+    - groovy-victoria-swift-v3
