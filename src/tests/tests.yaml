@@ -1,6 +1,7 @@
 charm_name: cinder-backup-swift-proxy
 gate_bundles:
-  - focal-ussuri-swift-v3
+  # Disabled due to Bug: #1890821
+  # - focal-ussuri-swift-v3
   - bionic-queens-swift-v3
   - bionic-queens-swift-v2
 smoke_bundles:
