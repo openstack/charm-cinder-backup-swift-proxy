@@ -38,18 +38,18 @@ machines:
 applications:
 
   keystone-mysql-router:
-    charm: cs:~openstack-charmers-next/mysql-router
+    charm: cs:~openstack-charmers/mysql-router
   glance-mysql-router:
-    charm: cs:~openstack-charmers-next/mysql-router
+    charm: cs:~openstack-charmers/mysql-router
   nova-cloud-controller-mysql-router:
-    charm: cs:~openstack-charmers-next/mysql-router
+    charm: cs:~openstack-charmers/mysql-router
   cinder-mysql-router:
-    charm: cs:~openstack-charmers-next/mysql-router
+    charm: cs:~openstack-charmers/mysql-router
   placement-mysql-router:
-    charm: cs:~openstack-charmers-next/mysql-router
+    charm: cs:~openstack-charmers/mysql-router
 
   mysql-innodb-cluster:
-    charm: cs:~openstack-charmers-next/mysql-innodb-cluster
+    charm: cs:~openstack-charmers/mysql-innodb-cluster
     num_units: 3
     options:
       source: *openstack-origin
@@ -59,7 +59,7 @@ applications:
       - '2'
 
   ceph-mon:
-    charm: cs:~openstack-charmers-next/ceph-mon
+    charm: cs:~openstack-charmers/ceph-mon
     num_units: 3
     options:
       source: *openstack-origin
@@ -70,7 +70,7 @@ applications:
       - '8'
 
   ceph-osd:
-    charm: cs:~openstack-charmers-next/ceph-osd
+    charm: cs:~openstack-charmers/ceph-osd
     num_units: 3
     storage:
       osd-devices: 'cinder,10G'
@@ -83,7 +83,7 @@ applications:
       - '11'
 
   cinder:
-    charm: cs:~openstack-charmers-next/cinder
+    charm: cs:~openstack-charmers/cinder
     num_units: 1
     options:
       block-device: None
@@ -93,7 +93,7 @@ applications:
       - '12'
 
   cinder-ceph:
-    charm: cs:~openstack-charmers-next/cinder-ceph
+    charm: cs:~openstack-charmers/cinder-ceph
     num_units: 0
 
   cinder-backup-swift-proxy:
@@ -108,7 +108,7 @@ applications:
       project-name: admin
 
   glance:
-    charm: cs:~openstack-charmers-next/glance
+    charm: cs:~openstack-charmers/glance
     num_units: 1
     options:
       openstack-origin: *openstack-origin
@@ -116,7 +116,7 @@ applications:
       - '13'
 
   keystone:
-    charm: cs:~openstack-charmers-next/keystone
+    charm: cs:~openstack-charmers/keystone
     num_units: 1
     options:
       openstack-origin: *openstack-origin
@@ -124,7 +124,7 @@ applications:
       - '14'
 
   nova-cloud-controller:
-    charm: cs:~openstack-charmers-next/nova-cloud-controller
+    charm: cs:~openstack-charmers/nova-cloud-controller
     num_units: 1
     options:
       openstack-origin: *openstack-origin
@@ -132,7 +132,7 @@ applications:
       - '15'
 
   rabbitmq-server:
-    charm: cs:~openstack-charmers-next/rabbitmq-server
+    charm: cs:~openstack-charmers/rabbitmq-server
     num_units: 1
     options:
       source: *openstack-origin
@@ -140,7 +140,7 @@ applications:
       - '16'
 
   nova-compute:
-    charm: cs:~openstack-charmers-next/nova-compute
+    charm: cs:~openstack-charmers/nova-compute
     num_units: 1
     options:
       openstack-origin: *openstack-origin
@@ -148,7 +148,7 @@ applications:
       - '17'
 
   placement:
-    charm: cs:~openstack-charmers-next/placement
+    charm: cs:~openstack-charmers/placement
     num_units: 1
     constraints: mem=1G
     options:
@@ -158,10 +158,10 @@ applications:
 
 # external swift
   swift-keystone-mysql-router:
-    charm: cs:~openstack-charmers-next/mysql-router
+    charm: cs:~openstack-charmers/mysql-router
 
   swift-mysql-innodb-cluster:
-    charm: cs:~openstack-charmers-next/mysql-innodb-cluster
+    charm: cs:~openstack-charmers/mysql-innodb-cluster
     num_units: 3
     options:
       source: *openstack-origin
@@ -171,7 +171,7 @@ applications:
       - '5'
 
   swift-keystone:
-    charm: cs:~openstack-charmers-next/keystone
+    charm: cs:~openstack-charmers/keystone
     num_units: 1
     options:
       openstack-origin: *openstack-origin
@@ -182,7 +182,7 @@ applications:
 
 
   swift-proxy:
-    charm: cs:~openstack-charmers-next/swift-proxy
+    charm: cs:~openstack-charmers/swift-proxy
     num_units: 1
     options:
       openstack-origin: *openstack-origin
@@ -192,7 +192,7 @@ applications:
       - '20'
 
   swift-storage:
-    charm: cs:~openstack-charmers-next/swift-storage
+    charm: cs:~openstack-charmers/swift-storage
     num_units: 1
     options:
       openstack-origin: *openstack-origin
