@@ -1,11 +1,14 @@
 charm_name: cinder-backup-swift-proxy
 gate_bundles:
   - groovy-victoria-swift-v3
-  # Disabled due to Bug: #1890821
-  # - focal-victoria-swift-v3
-  # - focal-ussuri-swift-v3
   - bionic-queens-swift-v3
   - bionic-queens-swift-v2
+dev_bundles:
+  - hirsute-wallaby-swift-v3
+  # Disabled due to Bug: #1890821
+  - focal-wallaby-swift-v3
+  - focal-victoria-swift-v3
+  - focal-ussuri-swift-v3
 smoke_bundles:
   - bionic-queens-swift-v3
   - bionic-queens-swift-v2
@@ -15,4 +18,4 @@ tests:
   - zaza.openstack.charm_tests.cinder_backup_swift_proxy.tests.CinderBackupSwiftTest
 tests_options:
   force_deploy:
-    - groovy-victoria-swift-v3
+    - hirsute-wallaby-swift-v3
