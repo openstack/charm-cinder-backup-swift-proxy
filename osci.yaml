@@ -3,12 +3,17 @@
       - charm-unit-jobs
     check:
       jobs:
+        - impish-xena-swift-v3:
+            voting: false
         - hirsute-wallaby-swift-v3
-        - groovy-victoria-swift-v3
+        - focal-xena-swift-v3:
+            voting: false
         - focal-wallaby-swift-v3
         # Disabled due to Bug: #1890821
-        # - focal-victoria-swift-v3
-        # - focal-ussuri-swift-v3
+        - focal-victoria-swift-v3:
+            voting: false
+        - focal-ussuri-swift-v3:
+            voting: false
         - bionic-queens-swift-v3
         - bionic-queens-swift-v2
     vars:
@@ -16,11 +21,17 @@
       charm_build_name: cinder-backup-swift-proxy
 
 - job:
-    name: hirsute-wallaby-swift-v3
+    name: impish-xena-swift-v3
     parent: func-target
     dependencies: &smoke-jobs
       - bionic-queens-swift-v3
       - bionic-queens-swift-v2
+    vars:
+      tox_extra_args: impish-xena-swift-v3
+- job:
+    name: hirsute-wallaby-swift-v3
+    parent: func-target
+    dependencies: *smoke-jobs
     vars:
       tox_extra_args: hirsute-wallaby-swift-v3
 - job:
@@ -30,23 +41,29 @@
     vars:
       tox_extra_args: groovy-victoria-swift-v3
 - job:
+     name: focal-xena-swift-v3
+     parent: func-target
+     dependencies: *smoke-jobs
+     vars:
+       tox_extra_args: focal-xena-swift-v3
+- job:
      name: focal-wallaby-swift-v3
      parent: func-target
      dependencies: *smoke-jobs
      vars:
        tox_extra_args: focal-wallaby-swift-v3
-# - job:
-#     name: focal-victoria-swift-v3
-#     parent: func-target
-#     dependencies: *smoke-jobs
-#     vars:
-#       tox_extra_args: focal-victoria-swift-v3
-# - job:
-#     name: focal-ussuri-swift-v3
-#     parent: func-target
-#     dependencies: *smoke-jobs
-#     vars:
-#       tox_extra_args: focal-ussuri-swift-v3
+- job:
+     name: focal-victoria-swift-v3
+     parent: func-target
+     dependencies: *smoke-jobs
+     vars:
+       tox_extra_args: focal-victoria-swift-v3
+- job:
+     name: focal-ussuri-swift-v3
+     parent: func-target
+     dependencies: *smoke-jobs
+     vars:
+       tox_extra_args: focal-ussuri-swift-v3
 - job:
     name: bionic-queens-swift-v3
     parent: func-target

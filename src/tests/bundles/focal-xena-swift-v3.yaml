@@ -1,0 +1,307 @@
+variables:
+  openstack-origin: &openstack-origin cloud:focal-xena
+
+series: focal
+
+comment:
+- 'machines section to decide order of deployment. database sooner = faster'
+machines:
+  '0':
+    constraints: mem=3072M
+  '1':
+    constraints: mem=3072M
+  '2':
+    constraints: mem=3072M
+  '3':
+    constraints: mem=3072M
+  '4':
+    constraints: mem=3072M
+  '5':
+    constraints: mem=3072M
+  '6':
+  '7':
+  '8':
+  '9':
+  '10':
+  '11':
+  '12':
+  '13':
+  '14':
+  '15':
+  '16':
+  '17':
+  '18':
+  '19':
+  '20':
+  '21':
+
+applications:
+
+  keystone-mysql-router:
+    charm: cs:~openstack-charmers-next/mysql-router
+  glance-mysql-router:
+    charm: cs:~openstack-charmers-next/mysql-router
+  nova-cloud-controller-mysql-router:
+    charm: cs:~openstack-charmers-next/mysql-router
+  cinder-mysql-router:
+    charm: cs:~openstack-charmers-next/mysql-router
+  placement-mysql-router:
+    charm: cs:~openstack-charmers-next/mysql-router
+
+  mysql-innodb-cluster:
+    charm: cs:~openstack-charmers-next/mysql-innodb-cluster
+    num_units: 3
+    options:
+      source: *openstack-origin
+    to:
+      - '0'
+      - '1'
+      - '2'
+
+  ceph-mon:
+    charm: cs:~openstack-charmers-next/ceph-mon
+    num_units: 3
+    options:
+      source: *openstack-origin
+      monitor-count: '3'
+    to:
+      - '6'
+      - '7'
+      - '8'
+
+  ceph-osd:
+    charm: cs:~openstack-charmers-next/ceph-osd
+    num_units: 3
+    storage:
+      osd-devices: 'cinder,10G'
+    options:
+      source: *openstack-origin
+      osd-devices: '/dev/test-non-existent'
+    to:
+      - '9'
+      - '10'
+      - '11'
+
+  cinder:
+    charm: cs:~openstack-charmers-next/cinder
+    num_units: 1
+    options:
+      block-device: None
+      openstack-origin: *openstack-origin
+      glance-api-version: 2
+    to:
+      - '12'
+
+  cinder-ceph:
+    charm: cs:~openstack-charmers-next/cinder-ceph
+    num_units: 0
+
+  cinder-backup-swift-proxy:
+    charm: cinder-backup-swift-proxy
+    num_units: 0
+    options:
+      auth-version: 3
+      swift-user: admin
+      swift-key: openstack
+      user-domain: admin_domain
+      project-domain: admin_domain
+      project-name: admin
+
+  glance:
+    charm: cs:~openstack-charmers-next/glance
+    num_units: 1
+    options:
+      openstack-origin: *openstack-origin
+    to:
+      - '13'
+
+  keystone:
+    charm: cs:~openstack-charmers-next/keystone
+    num_units: 1
+    options:
+      openstack-origin: *openstack-origin
+    to:
+      - '14'
+
+  nova-cloud-controller:
+    charm: cs:~openstack-charmers-next/nova-cloud-controller
+    num_units: 1
+    options:
+      openstack-origin: *openstack-origin
+    to:
+      - '15'
+
+  rabbitmq-server:
+    charm: cs:~openstack-charmers-next/rabbitmq-server
+    num_units: 1
+    options:
+      source: *openstack-origin
+    to:
+      - '16'
+
+  nova-compute:
+    charm: cs:~openstack-charmers-next/nova-compute
+    num_units: 1
+    options:
+      openstack-origin: *openstack-origin
+    to:
+      - '17'
+
+  placement:
+    charm: cs:~openstack-charmers-next/placement
+    num_units: 1
+    constraints: mem=1G
+    options:
+      openstack-origin: *openstack-origin
+    to:
+     - '18'
+
+# external swift
+  swift-keystone-mysql-router:
+    charm: cs:~openstack-charmers-next/mysql-router
+
+  swift-mysql-innodb-cluster:
+    charm: cs:~openstack-charmers-next/mysql-innodb-cluster
+    num_units: 3
+    options:
+      source: *openstack-origin
+    to:
+      - '3'
+      - '4'
+      - '5'
+
+  swift-keystone:
+    charm: cs:~openstack-charmers-next/keystone
+    num_units: 1
+    options:
+      openstack-origin: *openstack-origin
+      admin-password: openstack
+      preferred-api-version: 3
+    to:
+      - '19'
+
+
+  swift-proxy:
+    charm: cs:~openstack-charmers-next/swift-proxy
+    num_units: 1
+    options:
+      openstack-origin: *openstack-origin
+      zone-assignment: manual
+      replicas: 1
+    to:
+      - '20'
+
+  swift-storage:
+    charm: cs:~openstack-charmers-next/swift-storage
+    num_units: 1
+    options:
+      openstack-origin: *openstack-origin
+      zone: 1
+    storage:
+      block-devices: 'cinder,10G'
+    to:
+      - '21'
+
+
+relations:
+
+  - - 'nova-compute:amqp'
+    - 'rabbitmq-server:amqp'
+
+  - - 'keystone:shared-db'
+    - 'keystone-mysql-router:shared-db'
+  - - 'keystone-mysql-router:db-router'
+    - 'mysql-innodb-cluster:db-router'
+
+  - - 'nova-cloud-controller:identity-service'
+    - 'keystone:identity-service'
+
+  - - 'glance:identity-service'
+    - 'keystone:identity-service'
+
+  - - 'glance:shared-db'
+    - 'glance-mysql-router:shared-db'
+  - - 'glance-mysql-router:db-router'
+    - 'mysql-innodb-cluster:db-router'
+
+  - - 'glance:amqp'
+    - 'rabbitmq-server:amqp'
+
+  - - 'nova-cloud-controller:image-service'
+    - 'glance:image-service'
+
+  - - 'nova-compute:image-service'
+    - 'glance:image-service'
+
+  - - 'nova-cloud-controller:cloud-compute'
+    - 'nova-compute:cloud-compute'
+
+  - - 'nova-cloud-controller:amqp'
+    - 'rabbitmq-server:amqp'
+
+  - - 'nova-cloud-controller:shared-db'
+    - 'nova-cloud-controller-mysql-router:shared-db'
+  - - 'nova-cloud-controller-mysql-router:db-router'
+    - 'mysql-innodb-cluster:db-router'
+
+  - - 'placement:shared-db'
+    - 'placement-mysql-router:shared-db'
+  - - 'placement-mysql-router:db-router'
+    - 'mysql-innodb-cluster:db-router'
+
+  - - 'placement:identity-service'
+    - 'keystone:identity-service'
+
+  - - 'placement:placement'
+    - 'nova-cloud-controller:placement'
+
+  - - 'cinder:image-service'
+    - 'glance:image-service'
+
+  - - 'cinder:amqp'
+    - 'rabbitmq-server:amqp'
+
+  - - 'cinder:identity-service'
+    - 'keystone:identity-service'
+
+  - - 'cinder:cinder-volume-service'
+    - 'nova-cloud-controller:cinder-volume-service'
+
+  - - 'cinder-ceph:storage-backend'
+    - 'cinder:storage-backend'
+
+  - - 'cinder'
+    - 'cinder-backup-swift-proxy'
+
+  - - 'ceph-mon:client'
+    - 'nova-compute:ceph'
+
+  - - 'nova-compute:ceph-access'
+    - 'cinder-ceph:ceph-access'
+
+  - - 'cinder:shared-db'
+    - 'cinder-mysql-router:shared-db'
+  - - 'cinder-mysql-router:db-router'
+    - 'mysql-innodb-cluster:db-router'
+
+  - - 'ceph-mon:client'
+    - 'cinder-ceph:ceph'
+
+  - - 'ceph-mon:client'
+    - 'glance:ceph'
+
+  - - 'ceph-osd:mon'
+    - 'ceph-mon:osd'
+
+# external swift service
+  - - 'swift-keystone:shared-db'
+    - 'swift-keystone-mysql-router:shared-db'
+  - - 'swift-keystone-mysql-router:db-router'
+    - 'swift-mysql-innodb-cluster:db-router'
+
+  - - 'swift-proxy:identity-service'
+    - 'swift-keystone:identity-service'
+
+  - - 'swift-proxy:swift-storage'
+    - 'swift-storage:swift-storage'
+
