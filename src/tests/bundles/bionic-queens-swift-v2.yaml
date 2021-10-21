@@ -61,24 +61,20 @@ applications:
     num_units: 3
     options:
       monitor-count: '3'
-    channel: candidate
   ceph-osd:
     charm: cs:~openstack-charmers/ceph-osd
     num_units: 3
     storage:
       osd-devices: 'cinder,10G'
-    channel: candidate
   cinder:
     charm: cs:~openstack-charmers/cinder
     num_units: 1
     options:
       block-device: None
       glance-api-version: 2
-    channel: candidate
   cinder-ceph:
     charm: cs:~openstack-charmers/cinder-ceph
     num_units: 0
-    channel: candidate
   cinder-backup-swift-proxy:
     charm: cinder-backup-swift-proxy
     num_units: 0
@@ -92,30 +88,24 @@ applications:
   glance:
     charm: cs:~openstack-charmers/glance
     num_units: 1
-    channel: candidate
   keystone:
     charm: cs:~openstack-charmers/keystone
     num_units: 1
-    channel: candidate
   mysql:
     charm: cs:~openstack-charmers/percona-cluster
     num_units: 1
     options:
       dataset-size: 25%
       max-connections: 1000
-    channel: candidate
   nova-cloud-controller:
     charm: cs:~openstack-charmers/nova-cloud-controller
     num_units: 1
-    channel: candidate
   rabbitmq-server:
     charm: cs:~openstack-charmers/rabbitmq-server
     num_units: 1
-    channel: candidate
   nova-compute:
     charm: cs:~openstack-charmers/nova-compute
     num_units: 1
-    channel: candidate
 
 # external swift
   swift-keystone:
@@ -125,7 +115,6 @@ applications:
     options:
       admin-password: openstack
       preferred-api-version: 3
-    channel: candidate
   swift-mysql:
     series: xenial
     charm: cs:~openstack-charmers/percona-cluster
@@ -133,7 +122,6 @@ applications:
     options:
       dataset-size: 25%
       max-connections: 1000
-    channel: candidate
   swift-proxy:
     series: xenial
     charm: cs:~openstack-charmers/swift-proxy
@@ -141,7 +129,6 @@ applications:
     options:
       zone-assignment: manual
       replicas: 1
-    channel: candidate
   swift-storage:
     series: xenial
     charm: cs:~openstack-charmers/swift-storage
@@ -150,5 +137,4 @@ applications:
       zone: 1
     storage:
       block-devices: 'cinder,10G'
-    channel: candidate
 
