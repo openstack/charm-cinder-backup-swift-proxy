@@ -1,88 +1,16 @@
 - project:
     templates:
-      - charm-unit-jobs
+      - charm-yoga-unit-jobs
+      - charm-yoga-functional-jobs
+      - charm-xena-functional-jobs
+      - charm-wallaby-functional-jobs
+      - charm-victoria-functional-jobs
+      - charm-ussuri-functional-jobs
+      - charm-stein-functional-jobs
     check:
       jobs:
-        - impish-xena-swift-v3:
-            voting: false
-        - hirsute-wallaby-swift-v3
-        - focal-xena-swift-v3:
-            voting: false
-        - focal-wallaby-swift-v3
-        # Disabled due to Bug: #1890821
-        - focal-victoria-swift-v3:
-            voting: false
-        - focal-ussuri-swift-v3:
-            voting: false
-        - bionic-queens-swift-v3
         - bionic-queens-swift-v2
+        - bionic-queens-swift-v3
     vars:
       needs_charm_build: true
       charm_build_name: cinder-backup-swift-proxy
-
-- job:
-    name: impish-xena-swift-v3
-    parent: func-target
-    dependencies: &smoke-jobs
-      - bionic-queens-swift-v3
-      - bionic-queens-swift-v2
-    vars:
-      tox_extra_args: impish-xena-swift-v3
-- job:
-    name: hirsute-wallaby-swift-v3
-    parent: func-target
-    dependencies: *smoke-jobs
-    vars:
-      tox_extra_args: hirsute-wallaby-swift-v3
-- job:
-    name: groovy-victoria-swift-v3
-    parent: func-target
-    dependencies: *smoke-jobs
-    vars:
-      tox_extra_args: groovy-victoria-swift-v3
-- job:
-     name: focal-xena-swift-v3
-     parent: func-target
-     dependencies: *smoke-jobs
-     vars:
-       tox_extra_args: focal-xena-swift-v3
-- job:
-     name: focal-wallaby-swift-v3
-     parent: func-target
-     dependencies: *smoke-jobs
-     vars:
-       tox_extra_args: focal-wallaby-swift-v3
-- job:
-     name: focal-victoria-swift-v3
-     parent: func-target
-     dependencies: *smoke-jobs
-     vars:
-       tox_extra_args: focal-victoria-swift-v3
-- job:
-     name: focal-ussuri-swift-v3
-     parent: func-target
-     dependencies: *smoke-jobs
-     vars:
-       tox_extra_args: focal-ussuri-swift-v3
-- job:
-    name: bionic-queens-swift-v3
-    parent: func-target
-    dependencies:
-        - osci-lint
-        - tox-py35
-        - tox-py36
-        - tox-py37
-        - tox-py38
-    vars:
-      tox_extra_args: bionic-queens-swift-v3
-- job:
-    name: bionic-queens-swift-v2
-    parent: func-target
-    dependencies:
-        - osci-lint
-        - tox-py35
-        - tox-py36
-        - tox-py37
-        - tox-py38
-    vars:
-      tox_extra_args: bionic-queens-swift-v2

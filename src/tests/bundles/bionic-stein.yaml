@@ -1,0 +1,156 @@
+variables:
+  openstack-origin: &openstack-origin cloud:bionic-stein
+
+series: bionic
+
+relations:
+- - nova-compute:amqp
+  - rabbitmq-server:amqp
+- - keystone:shared-db
+  - mysql:shared-db
+- - nova-cloud-controller:identity-service
+  - keystone:identity-service
+- - glance:identity-service
+  - keystone:identity-service
+- - glance:shared-db
+  - mysql:shared-db
+- - glance:amqp
+  - rabbitmq-server:amqp
+- - nova-cloud-controller:image-service
+  - glance:image-service
+- - nova-compute:image-service
+  - glance:image-service
+- - nova-cloud-controller:cloud-compute
+  - nova-compute:cloud-compute
+- - nova-cloud-controller:amqp
+  - rabbitmq-server:amqp
+- - nova-cloud-controller:shared-db
+  - mysql:shared-db
+- - cinder:image-service
+  - glance:image-service
+- - cinder:amqp
+  - rabbitmq-server:amqp
+- - cinder:identity-service
+  - keystone:identity-service
+- - cinder:cinder-volume-service
+  - nova-cloud-controller:cinder-volume-service
+- - cinder-ceph:storage-backend
+  - cinder:storage-backend
+- - cinder
+  - cinder-backup-swift-proxy
+- - ceph-mon:client
+  - nova-compute:ceph
+- - nova-compute:ceph-access
+  - cinder-ceph:ceph-access
+- - cinder:shared-db
+  - mysql:shared-db
+- - ceph-mon:client
+  - cinder-ceph:ceph
+- - ceph-mon:client
+  - glance:ceph
+- - ceph-osd:mon
+  - ceph-mon:osd
+
+# external swift service
+- - swift-keystone:shared-db
+  - swift-mysql:shared-db
+- - swift-proxy:identity-service
+  - swift-keystone:identity-service
+- - swift-proxy:swift-storage
+  - swift-storage:swift-storage
+
+applications:
+  ceph-mon:
+    charm: cs:~openstack-charmers-next/ceph-mon
+    num_units: 3
+    options:
+      source: *openstack-origin
+      monitor-count: '3'
+  ceph-osd:
+    charm: cs:~openstack-charmers-next/ceph-osd
+    num_units: 3
+    storage:
+      osd-devices: 'cinder,10G'
+    options:
+      source: *openstack-origin
+  cinder:
+    charm: cs:~openstack-charmers-next/cinder
+    num_units: 1
+    options:
+      block-device: None
+      openstack-origin: *openstack-origin
+      glance-api-version: 2
+  cinder-ceph:
+    charm: cs:~openstack-charmers-next/cinder-ceph
+    num_units: 0
+  cinder-backup-swift-proxy:
+    charm: cinder-backup-swift-proxy
+    num_units: 0
+    options:
+      auth-version: 3
+      swift-user: admin
+      swift-key: openstack
+      user-domain: admin_domain
+      project-domain: admin_domain
+      project-name: admin
+  glance:
+    charm: cs:~openstack-charmers-next/glance
+    num_units: 1
+    options:
+      openstack-origin: *openstack-origin
+  keystone:
+    charm: cs:~openstack-charmers-next/keystone
+    num_units: 1
+    options:
+      openstack-origin: *openstack-origin
+  mysql:
+    charm: cs:~openstack-charmers-next/percona-cluster
+    num_units: 1
+    options:
+      dataset-size: 25%
+      max-connections: 1000
+  nova-cloud-controller:
+    charm: cs:~openstack-charmers-next/nova-cloud-controller
+    num_units: 1
+    options:
+      openstack-origin: *openstack-origin
+  rabbitmq-server:
+    charm: cs:~openstack-charmers-next/rabbitmq-server
+    num_units: 1
+    options:
+      source: *openstack-origin
+  nova-compute:
+    charm: cs:~openstack-charmers-next/nova-compute
+    num_units: 1
+    options:
+      openstack-origin: *openstack-origin
+
+# external swift
+  swift-keystone:
+    charm: cs:~openstack-charmers-next/keystone
+    num_units: 1
+    options:
+      openstack-origin: *openstack-origin
+      admin-password: openstack
+      preferred-api-version: 3
+  swift-mysql:
+    charm: cs:~openstack-charmers-next/percona-cluster
+    num_units: 1
+    options:
+      dataset-size: 25%
+      max-connections: 1000
+  swift-proxy:
+    charm: cs:~openstack-charmers-next/swift-proxy
+    num_units: 1
+    options:
+      openstack-origin: *openstack-origin
+      zone-assignment: manual
+      replicas: 1
+  swift-storage:
+    charm: cs:~openstack-charmers-next/swift-storage
+    num_units: 1
+    options:
+      openstack-origin: *openstack-origin
+      zone: 1
+    storage:
+      block-devices: 'cinder,10G'
