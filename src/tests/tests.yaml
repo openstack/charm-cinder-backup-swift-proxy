@@ -1,25 +1,17 @@
 charm_name: cinder-backup-swift-proxy
 gate_bundles:
-  - bionic-queens-swift-v2
-  - bionic-queens-swift-v3
-  - focal-ussuri
-  - focal-victoria
-  - focal-wallaby
   - focal-xena
-  - hirsute-wallaby
   - impish-xena
 dev_bundles:
   - focal-yoga
   - jammy-yoga
 smoke_bundles:
-  - bionic-queens-swift-v2
-  - focal-ussuri
+  - focal-xena
 configure:
   - zaza.openstack.charm_tests.cinder_backup_swift_proxy.setup.configure_cinder_backup
 tests:
   - zaza.openstack.charm_tests.cinder_backup_swift_proxy.tests.CinderBackupSwiftTest
 tests_options:
   force_deploy:
-    - hirsute-wallaby
     - impish-xena
     - jammy-yoga

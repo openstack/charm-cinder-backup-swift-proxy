@@ -38,18 +38,23 @@ machines:
 applications:
 
   keystone-mysql-router:
-    charm: cs:~openstack-charmers-next/mysql-router
+    charm: ch:mysql-router
+    channel: latest/edge
   glance-mysql-router:
-    charm: cs:~openstack-charmers-next/mysql-router
+    charm: ch:mysql-router
+    channel: latest/edge
   nova-cloud-controller-mysql-router:
-    charm: cs:~openstack-charmers-next/mysql-router
+    charm: ch:mysql-router
+    channel: latest/edge
   cinder-mysql-router:
-    charm: cs:~openstack-charmers-next/mysql-router
+    charm: ch:mysql-router
+    channel: latest/edge
   placement-mysql-router:
-    charm: cs:~openstack-charmers-next/mysql-router
+    charm: ch:mysql-router
+    channel: latest/edge
 
   mysql-innodb-cluster:
-    charm: cs:~openstack-charmers-next/mysql-innodb-cluster
+    charm: ch:mysql-innodb-cluster
     num_units: 3
     options:
       source: *openstack-origin
@@ -57,9 +62,10 @@ applications:
       - '0'
       - '1'
       - '2'
+    channel: latest/edge
 
   ceph-mon:
-    charm: cs:~openstack-charmers-next/ceph-mon
+    charm: ch:ceph-mon
     num_units: 3
     options:
       source: *openstack-origin
@@ -68,9 +74,10 @@ applications:
       - '6'
       - '7'
       - '8'
+    channel: latest/edge
 
   ceph-osd:
-    charm: cs:~openstack-charmers-next/ceph-osd
+    charm: ch:ceph-osd
     num_units: 3
     storage:
       osd-devices: 'cinder,10G'
@@ -81,9 +88,10 @@ applications:
       - '9'
       - '10'
       - '11'
+    channel: latest/edge
 
   cinder:
-    charm: cs:~openstack-charmers-next/cinder
+    charm: ch:cinder
     num_units: 1
     options:
       block-device: None
@@ -91,10 +99,12 @@ applications:
       glance-api-version: 2
     to:
       - '12'
+    channel: latest/edge
 
   cinder-ceph:
-    charm: cs:~openstack-charmers-next/cinder-ceph
+    charm: ch:cinder-ceph
     num_units: 0
+    channel: latest/edge
 
   cinder-backup-swift-proxy:
     charm: cinder-backup-swift-proxy
@@ -108,60 +118,67 @@ applications:
       project-name: admin
 
   glance:
-    charm: cs:~openstack-charmers-next/glance
+    charm: ch:glance
     num_units: 1
     options:
       openstack-origin: *openstack-origin
     to:
       - '13'
+    channel: latest/edge
 
   keystone:
-    charm: cs:~openstack-charmers-next/keystone
+    charm: ch:keystone
     num_units: 1
     options:
       openstack-origin: *openstack-origin
     to:
       - '14'
+    channel: latest/edge
 
   nova-cloud-controller:
-    charm: cs:~openstack-charmers-next/nova-cloud-controller
+    charm: ch:nova-cloud-controller
     num_units: 1
     options:
       openstack-origin: *openstack-origin
     to:
       - '15'
+    channel: latest/edge
 
   rabbitmq-server:
-    charm: cs:~openstack-charmers-next/rabbitmq-server
+    charm: ch:rabbitmq-server
     num_units: 1
     options:
       source: *openstack-origin
     to:
       - '16'
+    channel: latest/edge
 
   nova-compute:
-    charm: cs:~openstack-charmers-next/nova-compute
+    charm: ch:nova-compute
     num_units: 1
     options:
       openstack-origin: *openstack-origin
     to:
       - '17'
+    channel: latest/edge
 
   placement:
-    charm: cs:~openstack-charmers-next/placement
+    charm: ch:placement
     num_units: 1
     constraints: mem=1G
     options:
       openstack-origin: *openstack-origin
     to:
      - '18'
+    channel: latest/edge
 
 # external swift
   swift-keystone-mysql-router:
-    charm: cs:~openstack-charmers-next/mysql-router
+    charm: ch:mysql-router
+    channel: latest/edge
 
   swift-mysql-innodb-cluster:
-    charm: cs:~openstack-charmers-next/mysql-innodb-cluster
+    charm: ch:mysql-innodb-cluster
     num_units: 3
     options:
       source: *openstack-origin
@@ -169,9 +186,10 @@ applications:
       - '3'
       - '4'
       - '5'
+    channel: latest/edge
 
   swift-keystone:
-    charm: cs:~openstack-charmers-next/keystone
+    charm: ch:keystone
     num_units: 1
     options:
       openstack-origin: *openstack-origin
@@ -179,10 +197,11 @@ applications:
       preferred-api-version: 3
     to:
       - '19'
+    channel: latest/edge
 
 
   swift-proxy:
-    charm: cs:~openstack-charmers-next/swift-proxy
+    charm: ch:swift-proxy
     num_units: 1
     options:
       openstack-origin: *openstack-origin
@@ -190,9 +209,10 @@ applications:
       replicas: 1
     to:
       - '20'
+    channel: latest/edge
 
   swift-storage:
-    charm: cs:~openstack-charmers-next/swift-storage
+    charm: ch:swift-storage
     num_units: 1
     options:
       openstack-origin: *openstack-origin
@@ -201,6 +221,7 @@ applications:
       block-devices: 'cinder,10G'
     to:
       - '21'
+    channel: latest/edge
 
 
 relations:
