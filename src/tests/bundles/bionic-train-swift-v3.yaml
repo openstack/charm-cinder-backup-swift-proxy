@@ -1,4 +1,10 @@
+local_overlay_enabled: False
+
 series: bionic
+
+variables:
+  openstack-origin: &openstack-origin cloud:bionic-train
+
 relations:
 - - nova-compute:amqp
   - rabbitmq-server:amqp
@@ -46,6 +52,12 @@ relations:
   - glance:ceph
 - - ceph-osd:mon
   - ceph-mon:osd
+- - placement:shared-db
+  - mysql:shared-db
+- - placement:identity-service
+  - keystone:identity-service
+- - placement:placement
+  - nova-cloud-controller:placement
 
 # external swift service
 - - swift-keystone:shared-db
@@ -57,26 +69,34 @@ relations:
 
 applications:
   ceph-mon:
-    charm: cs:~openstack-charmers/ceph-mon
+    charm: ch:ceph-mon
     num_units: 3
     options:
+      source: *openstack-origin
       monitor-count: '3'
+    channel: octopus/edge
   ceph-osd:
-    charm: cs:~openstack-charmers/ceph-osd
+    charm: ch:ceph-osd
     num_units: 3
     storage:
       osd-devices: 'cinder,10G'
+    options:
+      source: *openstack-origin
+    channel: octopus/edge
   cinder:
-    charm: cs:~openstack-charmers/cinder
+    charm: ch:cinder
     num_units: 1
     options:
       block-device: None
+      openstack-origin: *openstack-origin
       glance-api-version: 2
+    channel: ussuri/edge
   cinder-ceph:
-    charm: cs:~openstack-charmers/cinder-ceph
+    charm: ch:cinder-ceph
     num_units: 0
+    channel: ussuri/edge
   cinder-backup-swift-proxy:
-    charm: cinder-backup-swift-proxy
+    charm: ../../../cinder-backup-swift-proxy.charm
     num_units: 0
     options:
       auth-version: 3
@@ -86,50 +106,78 @@ applications:
       project-domain: admin_domain
       project-name: admin
   glance:
-    charm: cs:~openstack-charmers/glance
+    charm: ch:glance
     num_units: 1
+    options:
+      openstack-origin: *openstack-origin
+    channel: ussuri/edge
   keystone:
-    charm: cs:~openstack-charmers/keystone
+    charm: ch:keystone
     num_units: 1
+    options:
+      openstack-origin: *openstack-origin
+    channel: ussuri/edge
   mysql:
-    charm: cs:~openstack-charmers/percona-cluster
+    charm: ch:percona-cluster
     num_units: 1
     options:
       dataset-size: 25%
       max-connections: 1000
+    channel: 5.7/edge
   nova-cloud-controller:
-    charm: cs:~openstack-charmers/nova-cloud-controller
+    charm: ch:nova-cloud-controller
     num_units: 1
+    options:
+      openstack-origin: *openstack-origin
+    channel: ussuri/edge
   rabbitmq-server:
-    charm: cs:~openstack-charmers/rabbitmq-server
+    charm: ch:rabbitmq-server
     num_units: 1
+    channel: 3.8/edge
   nova-compute:
-    charm: cs:~openstack-charmers/nova-compute
+    charm: ch:nova-compute
     num_units: 1
+    options:
+      openstack-origin: *openstack-origin
+    channel: ussuri/edge
+  placement:
+    charm: ch:placement
+    num_units: 1
+    options:
+      openstack-origin: *openstack-origin
+    channel: ussuri/edge
 
 # external swift
   swift-keystone:
-    charm: cs:~openstack-charmers/keystone
+    charm: ch:keystone
     num_units: 1
     options:
       admin-password: openstack
       preferred-api-version: 3
+    options:
+      openstack-origin: *openstack-origin
+    channel: ussuri/edge
   swift-mysql:
-    charm: cs:~openstack-charmers/percona-cluster
+    charm: ch:percona-cluster
     num_units: 1
     options:
       dataset-size: 25%
       max-connections: 1000
+    channel: 5.7/edge
   swift-proxy:
-    charm: cs:~openstack-charmers/swift-proxy
+    charm: ch:swift-proxy
     num_units: 1
     options:
+      openstack-origin: *openstack-origin
       zone-assignment: manual
       replicas: 1
+    channel: ussuri/edge
   swift-storage:
-    charm: cs:~openstack-charmers/swift-storage
+    charm: ch:swift-storage
     num_units: 1
     options:
+      openstack-origin: *openstack-origin
       zone: 1
     storage:
       block-devices: 'cinder,10G'
+    channel: ussuri/edge

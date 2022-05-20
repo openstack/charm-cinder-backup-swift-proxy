@@ -1,71 +1,44 @@
 - project:
     templates:
-      - charm-unit-jobs
+      - charm-unit-jobs-py36
+      - charm-unit-jobs-py38
     check:
       jobs:
-        - hirsute-wallaby-swift-v3
-        - groovy-victoria-swift-v3
-        - focal-wallaby-swift-v3
-        # Disabled due to Bug: #1890821
-        # - focal-victoria-swift-v3
-        # - focal-ussuri-swift-v3
-        - bionic-queens-swift-v3
-        - bionic-queens-swift-v2
+        - bionic-train-swift-v3
+        - bionic-ussuri-swift-v3
+        - focal-ussuri-swift-v3
     vars:
       needs_charm_build: true
       charm_build_name: cinder-backup-swift-proxy
+      build_type: charmcraft
 
 - job:
-    name: hirsute-wallaby-swift-v3
-    parent: func-target
-    dependencies: &smoke-jobs
-      - bionic-queens-swift-v3
-      - bionic-queens-swift-v2
-    vars:
-      tox_extra_args: hirsute-wallaby-swift-v3
-- job:
-    name: groovy-victoria-swift-v3
-    parent: func-target
-    dependencies: *smoke-jobs
-    vars:
-      tox_extra_args: groovy-victoria-swift-v3
-- job:
-     name: focal-wallaby-swift-v3
-     parent: func-target
-     dependencies: *smoke-jobs
-     vars:
-       tox_extra_args: focal-wallaby-swift-v3
-# - job:
-#     name: focal-victoria-swift-v3
-#     parent: func-target
-#     dependencies: *smoke-jobs
-#     vars:
-#       tox_extra_args: focal-victoria-swift-v3
-# - job:
-#     name: focal-ussuri-swift-v3
-#     parent: func-target
-#     dependencies: *smoke-jobs
-#     vars:
-#       tox_extra_args: focal-ussuri-swift-v3
-- job:
-    name: bionic-queens-swift-v3
+    name: focal-ussuri-swift-v3
     parent: func-target
     dependencies:
-        - osci-lint
-        - tox-py35
-        - tox-py36
-        - tox-py37
-        - tox-py38
+      - charm-build
+      - osci-lint
+      - tox-py36
+      - tox-py38
     vars:
-      tox_extra_args: bionic-queens-swift-v3
+      tox_extra_args: focal-ussuri-swift-v3
 - job:
-    name: bionic-queens-swift-v2
+    name: bionic-train-swift-v3
     parent: func-target
     dependencies:
-        - osci-lint
-        - tox-py35
-        - tox-py36
-        - tox-py37
-        - tox-py38
+      - charm-build
+      - osci-lint
+      - tox-py36
+      - tox-py38
     vars:
-      tox_extra_args: bionic-queens-swift-v2
+      tox_extra_args: bionic-train-swift-v3
+- job:
+    name: bionic-ussuri-swift-v3
+    parent: func-target
+    dependencies:
+      - charm-build
+      - osci-lint
+      - tox-py36
+      - tox-py38
+    vars:
+      tox_extra_args: bionic-ussuri-swift-v3
