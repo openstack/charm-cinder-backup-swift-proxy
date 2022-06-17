@@ -1,3 +1,5 @@
+local_overlay_enabled: False
+
 variables:
   openstack-origin: &openstack-origin cloud:focal-wallaby
 
@@ -39,19 +41,19 @@ applications:
 
   keystone-mysql-router:
     charm: ch:mysql-router
-    channel: 8.0.19/edge
+    channel: 8.0/edge
   glance-mysql-router:
     charm: ch:mysql-router
-    channel: 8.0.19/edge
+    channel: 8.0/edge
   nova-cloud-controller-mysql-router:
     charm: ch:mysql-router
-    channel: 8.0.19/edge
+    channel: 8.0/edge
   cinder-mysql-router:
     charm: ch:mysql-router
-    channel: 8.0.19/edge
+    channel: 8.0/edge
   placement-mysql-router:
     charm: ch:mysql-router
-    channel: 8.0.19/edge
+    channel: 8.0/edge
 
   mysql-innodb-cluster:
     charm: ch:mysql-innodb-cluster
@@ -62,7 +64,7 @@ applications:
       - '0'
       - '1'
       - '2'
-    channel: 8.0.19/edge
+    channel: 8.0/edge
 
   ceph-mon:
     charm: ch:ceph-mon
@@ -175,7 +177,7 @@ applications:
 # external swift
   swift-keystone-mysql-router:
     charm: ch:mysql-router
-    channel: 8.0.19/edge
+    channel: 8.0/edge
 
   swift-mysql-innodb-cluster:
     charm: ch:mysql-innodb-cluster
@@ -186,7 +188,7 @@ applications:
       - '3'
       - '4'
       - '5'
-    channel: 8.0.19/edge
+    channel: 8.0/edge
 
   swift-keystone:
     charm: ch:keystone
