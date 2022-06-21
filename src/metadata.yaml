@@ -9,10 +9,6 @@ tags:
 - misc
 series:
 - bionic
-- focal
-- groovy
-- hirsute
-- impish
 subordinate: true
 provides:
   backup-backend:

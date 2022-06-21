@@ -9,3 +9,4 @@ cover
 *.pyc
 build
 func-results.json
+*.charm
