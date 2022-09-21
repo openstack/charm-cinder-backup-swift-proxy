@@ -8,8 +8,8 @@ description: |
 tags:
 - misc
 series:
-- focal
 - jammy
+- kinetic
 subordinate: true
 provides:
   backup-backend:

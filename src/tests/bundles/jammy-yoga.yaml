@@ -109,7 +109,7 @@ applications:
     channel: latest/edge
 
   cinder-backup-swift-proxy:
-    charm: ../../../cinder-backup-swift-proxy_ubuntu-22.04-amd64.charm
+    charm: ../../../cinder-backup-swift-proxy_ubuntu-22.04-amd64_ubuntu-22.10-amd64.charm
     num_units: 0
     options:
       auth-version: 3
