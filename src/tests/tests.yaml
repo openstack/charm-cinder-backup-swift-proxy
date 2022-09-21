@@ -1,7 +1,6 @@
 charm_name: cinder-backup-swift-proxy
 gate_bundles:
   - focal-xena
-  - impish-xena
 dev_bundles:
   - focal-yoga
   - jammy-yoga
@@ -13,5 +12,4 @@ tests:
   - zaza.openstack.charm_tests.cinder_backup_swift_proxy.tests.CinderBackupSwiftTest
 tests_options:
   force_deploy:
-    - impish-xena
     - jammy-yoga
