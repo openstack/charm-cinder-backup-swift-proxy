@@ -1,10 +1,10 @@
 charm_name: cinder-backup-swift-proxy
 gate_bundles:
-  - jammy-yoga
-dev_bundles:
-  - jammy-yoga
   - jammy-zed
+dev_bundles:
+  - jammy-antelope
   - kinetic-zed
+  - lunar-antelope
 smoke_bundles:
   - jammy-yoga
 configure:
@@ -14,3 +14,4 @@ tests:
 tests_options:
   force_deploy:
     - kinetic-zed
+    - lunar-antelope
