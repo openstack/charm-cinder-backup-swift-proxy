@@ -3,7 +3,6 @@ gate_bundles:
   - jammy-zed
 dev_bundles:
   - jammy-antelope
-  - kinetic-zed
   - lunar-antelope
 smoke_bundles:
   - jammy-yoga
@@ -13,5 +12,4 @@ tests:
   - zaza.openstack.charm_tests.cinder_backup_swift_proxy.tests.CinderBackupSwiftTest
 tests_options:
   force_deploy:
-    - kinetic-zed
     - lunar-antelope
