@@ -1,9 +1,10 @@
 charm_name: cinder-backup-swift-proxy
 gate_bundles:
-  - jammy-zed
-dev_bundles:
   - jammy-antelope
+dev_bundles:
+  - jammy-bobcat
   - lunar-antelope
+  - mantic-bobcat
 smoke_bundles:
   - jammy-yoga
 configure:
@@ -13,3 +14,4 @@ tests:
 tests_options:
   force_deploy:
     - lunar-antelope
+    - mantic-bobcat

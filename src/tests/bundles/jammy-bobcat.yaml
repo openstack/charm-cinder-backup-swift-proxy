@@ -1,9 +1,9 @@
 variables:
-  openstack-origin: &openstack-origin distro
+  openstack-origin: &openstack-origin cloud:jammy-bobcat
 
 local_overlay_enabled: False
 
-series: lunar
+series: jammy
 
 comment:
 - 'machines section to decide order of deployment. database sooner = faster'
@@ -109,7 +109,7 @@ applications:
     channel: latest/edge
 
   cinder-backup-swift-proxy:
-    charm: ../../../cinder-backup-swift-proxy_ubuntu-23.04-amd64.charm
+    charm: ../../../cinder-backup-swift-proxy_ubuntu-22.04-amd64.charm
     num_units: 0
     options:
       auth-version: 3
