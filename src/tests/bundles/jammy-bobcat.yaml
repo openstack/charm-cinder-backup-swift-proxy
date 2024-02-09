@@ -76,7 +76,7 @@ applications:
       - '6'
       - '7'
       - '8'
-    channel: latest/edge
+    channel: reef/edge
 
   ceph-osd:
     charm: ch:ceph-osd
@@ -90,7 +90,7 @@ applications:
       - '9'
       - '10'
       - '11'
-    channel: latest/edge
+    channel: reef/edge
 
   cinder:
     charm: ch:cinder
@@ -101,12 +101,12 @@ applications:
       glance-api-version: 2
     to:
       - '12'
-    channel: latest/edge
+    channel: 2024.1/edge
 
   cinder-ceph:
     charm: ch:cinder-ceph
     num_units: 0
-    channel: latest/edge
+    channel: 2024.1/edge
 
   cinder-backup-swift-proxy:
     charm: ../../../cinder-backup-swift-proxy_ubuntu-22.04-amd64.charm
@@ -126,7 +126,7 @@ applications:
       openstack-origin: *openstack-origin
     to:
       - '13'
-    channel: latest/edge
+    channel: 2024.1/edge
 
   keystone:
     charm: ch:keystone
@@ -135,7 +135,7 @@ applications:
       openstack-origin: *openstack-origin
     to:
       - '14'
-    channel: latest/edge
+    channel: 2024.1/edge
 
   nova-cloud-controller:
     charm: ch:nova-cloud-controller
@@ -144,7 +144,7 @@ applications:
       openstack-origin: *openstack-origin
     to:
       - '15'
-    channel: latest/edge
+    channel: 2024.1/edge
 
   rabbitmq-server:
     charm: ch:rabbitmq-server
@@ -160,7 +160,7 @@ applications:
       openstack-origin: *openstack-origin
     to:
       - '17'
-    channel: latest/edge
+    channel: 2024.1/edge
 
   placement:
     charm: ch:placement
@@ -170,7 +170,7 @@ applications:
       openstack-origin: *openstack-origin
     to:
      - '18'
-    channel: latest/edge
+    channel: 2024.1/edge
 
 # external swift
   swift-keystone-mysql-router:
@@ -197,7 +197,7 @@ applications:
       preferred-api-version: 3
     to:
       - '19'
-    channel: latest/edge
+    channel: 2024.1/edge
 
 
   swift-proxy:
@@ -209,7 +209,7 @@ applications:
       replicas: 1
     to:
       - '20'
-    channel: latest/edge
+    channel: 2024.1/edge
 
   swift-storage:
     charm: ch:swift-storage
@@ -221,7 +221,7 @@ applications:
       block-devices: 'cinder,10G'
     to:
       - '21'
-    channel: latest/edge
+    channel: 2024.1/edge
 
 
 relations:

@@ -1,17 +1,16 @@
 charm_name: cinder-backup-swift-proxy
 gate_bundles:
   - jammy-antelope
-dev_bundles:
   - jammy-bobcat
-  - lunar-antelope
-  - mantic-bobcat
+  - jammy-caracal
+dev_bundles:
+  - noble-caracal
 smoke_bundles:
-  - jammy-yoga
+  - jammy-caracal
 configure:
   - zaza.openstack.charm_tests.cinder_backup_swift_proxy.setup.configure_cinder_backup
 tests:
   - zaza.openstack.charm_tests.cinder_backup_swift_proxy.tests.CinderBackupSwiftTest
 tests_options:
   force_deploy:
-    - lunar-antelope
-    - mantic-bobcat
+    - noble-caracal
