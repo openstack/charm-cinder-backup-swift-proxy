@@ -76,7 +76,7 @@ applications:
       - '6'
       - '7'
       - '8'
-    channel: reef/edge
+    channel: squid/edge
 
   ceph-osd:
     charm: ch:ceph-osd
@@ -90,7 +90,7 @@ applications:
       - '9'
       - '10'
       - '11'
-    channel: reef/edge
+    channel: squid/edge
 
   cinder:
     charm: ch:cinder
