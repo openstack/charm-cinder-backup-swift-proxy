@@ -7,7 +7,7 @@ from charmhelpers.core.host import install_ca_cert
 from base64 import b64decode
 
 from charmhelpers.contrib.openstack.context import OSContextGenerator
-from charmhelpers.contrib.openstack.utils import get_os_codename_package,\
+from charmhelpers.contrib.openstack.utils import get_os_codename_package, \
     CompareOpenStackReleases
 from charms_openstack.charm import OpenStackCharm
 
